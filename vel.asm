@@ -1,0 +1,16 @@
+section .data
+hello db "Hello, World!", 10
+hello_len equ $ - hello
+
+section .text
+global _start
+_start:
+    mov rax, 1          ; sys_write
+    mov rdi, 1          ; stdout
+    mov rsi, hello      ; message address
+    mov rdx, hello_len  ; message length
+    syscall
+
+    mov rax, 60         ; sys_exit
+    xor rdi, rdi        ; exit code 0
+    syscall
