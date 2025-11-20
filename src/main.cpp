@@ -36,22 +36,15 @@ int main(int argc, char* argv[]){
     std::cout << code;
     std::cout << "\n" << "\t-----------------------------\n";
 
-    output_file << "section .data\n";
-    output_file << "hello db \"Hello, World!\", 10\n";  // 10 = newline
-    output_file << "hello_len equ $ - hello\n\n";
+    //Lexer
+    
 
-    output_file << "section .text\n";
-    output_file << "global _start\n";
-    output_file << "_start:\n";
-    output_file << "    mov rax, 1          ; sys_write\n";
-    output_file << "    mov rdi, 1          ; stdout\n";
-    output_file << "    mov rsi, hello      ; message address\n";
-    output_file << "    mov rdx, hello_len  ; message length\n";
-    output_file << "    syscall\n\n";
 
-    output_file << "    mov rax, 60         ; sys_exit\n";
-    output_file << "    xor rdi, rdi        ; exit code 0\n";
-    output_file << "    syscall\n";
+
+
+
+
+
 
     output_file.close();
 
