@@ -1,6 +1,6 @@
 
 
-i32 main(){
+void main(){
 
     asm{
     section .data

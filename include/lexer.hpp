@@ -1,12 +1,12 @@
-#ifndef MAIN_HPP
-#define MAIN_HPP
+#ifndef LEXER_HPP
+#define LEXER_HPP
 
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
 
-    ~
+
 enum class TokenType{
     Function,
     Typename,
