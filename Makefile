@@ -208,7 +208,7 @@ run_win:
 
 
 tempnuke:
-	rm vel.asm vel.o vel
+	rm test.asm test.o test
 
 
 

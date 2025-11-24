@@ -1,23 +1,13 @@
 
 
-void main(){
+niko main(){
+    int8 variable = 5;
+    //this is a comment
+    /* i love vel
+       mi olin e jan Elena
 
-    asm{
-    section .data
-    hello db "Hello, World!", 10
-    hello_len equ $ - hello
+       I use Arch btw
+       */
 
-    section .text
-    global _start
-    _start:
-        mov rax, 1          ; sys_write
-        mov rdi, 1          ; stdout
-        mov rsi, hello      ; message address
-        mov rdx, hello_len  ; message length
-        syscall
-
-        mov rax, 60         ; sys_exit
-        xor rdi, rdi        ; exit code 0
-        syscall
-    }
+    uint32 dion = 2002;
 }

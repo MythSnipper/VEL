@@ -5,11 +5,20 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 enum class TokenType{
     //keywords
-    INT_KEYWORD,
+    INT8_KEYWORD,
+    INT16_KEYWORD,
+    INT32_KEYWORD,
+    INT64_KEYWORD,
+    UINT8_KEYWORD,
+    UINT16_KEYWORD,
+    UINT32_KEYWORD,
+    UINT64_KEYWORD,
     CHAR_KEYWORD,
+    FLOAT_KEYWORD,
     DOUBLE_KEYWORD,
     IF_KEYWORD,
     ELSE_KEYWORD,
@@ -17,13 +26,22 @@ enum class TokenType{
     FOR_KEYWORD,
     RETURN_KEYWORD,
 
-    // Identifiers and literals
+    //identifiers and literals
     IDENTIFIER,
     INT_LITERAL,
     STRING_LITERAL,
     CHAR_LITERAL,
 
     // Operators
+
+    // Punctuation
+    SEMICOLON,  // ;
+    COMMA,      // ,
+    LPAREN,     // (
+    RPAREN,     // )
+    LBRACE,     // {
+    RBRACE,     // }
+
 
     //assignment
     ASSIGN,     // =
@@ -40,27 +58,37 @@ enum class TokenType{
     MUL,        // *
     DIV,        // /
     MOD,        // %
+        //comparison
+    EQ,         // ==
+    NEQ,        // !=
     LT,         // <
     GT,         // >
     LTE,        // <=
     GTE,        // >=
-    NEQ,        // !=
+        //logic
     AND,        // &
     ANDAND,     // &&
     OR,         // |
     OROR,       // ||
+    XOR,        // ^
+    LSHIFT,     // <<
+    RSHIFT,     // >>
 
+    //prefix
+    NEG,        // -
     NOT,        // !
-    
-    EQ,         // ==
 
-    // Punctuation
-    SEMICOLON,  // ;
-    COMMA,      // ,
-    LPAREN,     // (
-    RPAREN,     // )
-    LBRACE,     // {
-    RBRACE,     // }
+    INC,        // ++
+    DEC,        // --
+/* dead logic for lexer
+    LINC,       // ++
+    LDEC,       // --
+
+    //postfix
+    RINC,       // ++
+    RDEC,       // --
+
+*/
 
     // Special
     END_OF_FILE,
@@ -68,9 +96,20 @@ enum class TokenType{
 
 struct Token{
     TokenType type;
-
+    std::string text;
+    int64_t value;
+    int line;
+    int col;
 };
 
+namespace Lexer{
+    std::vector<Token> tokenize(const std::string& source);
+    void advance(const std::string& source, int& i, int& line, int& col);
+    Token scanKW_Identifier(const std::string& source, int& i, int& line, int& col);
+    TokenType checkKW_identifier(const std::string& text);
+    void scanComment_Single(const std::string& source, int& i, int& line, int& col);
+    void scanComment_Multi(const std::string& source, int& i, int& line, int& col);
+}
 
 
 #endif
