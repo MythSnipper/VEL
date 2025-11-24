@@ -75,11 +75,28 @@ enum class TokenType{
     RSHIFT,     // >>
 
     //prefix
-    NEG,        // -
+    //NEG,        // -
     NOT,        // !
 
     INC,        // ++
     DEC,        // --
+/*
+    +, +=, ++
+    -, -=, --
+    *, *=
+    /, /=
+    %, %=
+    =, ==
+    !, !=
+    <, <=, <<
+    >, >=, >>
+    &, &&
+    |, ||
+    ^, ^=
+
+*/
+
+
 /* dead logic for lexer
     LINC,       // ++
     LDEC,       // --

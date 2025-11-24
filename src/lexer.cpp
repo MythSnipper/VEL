@@ -47,12 +47,164 @@ namespace Lexer{
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
+
+
+
+
+
+
+
+
+
             //add rules for operators
-
-
-
-
-
+            else if(current_char == '+'){
+                if(next_char == '='){
+                    current_token = (Token){TokenType::ADD_ASSIGN, "+=", 0, line, col};
+                    advance(source, i, line, col);
+                }
+                else if(next_char == '+'){
+                    current_token = (Token){TokenType::INC, "++", 0, line, col};
+                    advance(source, i, line, col);
+                }
+                else{
+                    current_token = (Token){TokenType::ADD, "+", 0, line, col};
+                }
+                token_list.push_back(current_token);
+                advance(source, i, line, col);
+            }
+            else if(current_char == '-'){
+                if(next_char == '='){
+                    current_token = (Token){TokenType::SUB_ASSIGN, "-=", 0, line, col};
+                    advance(source, i, line, col);
+                }
+                else if(next_char == '-'){
+                    current_token = (Token){TokenType::DEC, "--", 0, line, col};
+                    advance(source, i, line, col);
+                }
+                else{
+                    current_token = (Token){TokenType::SUB, "-", 0, line, col};
+                }
+                token_list.push_back(current_token);
+                advance(source, i, line, col);
+            }
+            else if(current_char == '*'){
+                if(next_char == '='){
+                    current_token = (Token){TokenType::MUL_ASSIGN, "*=", 0, line, col};
+                    advance(source, i, line, col);
+                }
+                else{
+                    current_token = (Token){TokenType::MUL, "*", 0, line, col};
+                }
+                token_list.push_back(current_token);
+                advance(source, i, line, col);
+            }
+            else if(current_char == '/'){
+                if(next_char == '='){
+                    current_token = (Token){TokenType::DIV_ASSIGN, "/=", 0, line, col};
+                    advance(source, i, line, col);
+                }
+                else{
+                    current_token = (Token){TokenType::DIV, "/", 0, line, col};
+                }
+                token_list.push_back(current_token);
+                advance(source, i, line, col);
+            }
+            else if(current_char == '%'){
+                if(next_char == '='){
+                    current_token = (Token){TokenType::MOD_ASSIGN, "%=", 0, line, col};
+                    advance(source, i, line, col);
+                }
+                else{
+                    current_token = (Token){TokenType::MOD, "%", 0, line, col};
+                }
+                token_list.push_back(current_token);
+                advance(source, i, line, col);
+            }
+            else if(current_char == '='){
+                if(next_char == '='){
+                    current_token = (Token){TokenType::EQ, "==", 0, line, col};
+                    advance(source, i, line, col);
+                }
+                else{
+                    current_token = (Token){TokenType::ASSIGN, "=", 0, line, col};
+                }
+                token_list.push_back(current_token);
+                advance(source, i, line, col);
+            }
+            else if(current_char == '!'){
+                if(next_char == '='){
+                    current_token = (Token){TokenType::NEQ, "!=", 0, line, col};
+                    advance(source, i, line, col);
+                }
+                else{
+                    current_token = (Token){TokenType::NOT, "!", 0, line, col};
+                }
+                token_list.push_back(current_token);
+                advance(source, i, line, col);
+            }
+            else if(current_char == '<'){
+                if(next_char == '='){
+                    current_token = (Token){TokenType::LTE, "<=", 0, line, col};
+                    advance(source, i, line, col);
+                }
+                else if(next_char == '<'){
+                    current_token = (Token){TokenType::LSHIFT, "<<", 0, line, col};
+                    advance(source, i, line, col);
+                }
+                else{
+                    current_token = (Token){TokenType::LT, "<", 0, line, col};
+                }
+                token_list.push_back(current_token);
+                advance(source, i, line, col);
+            }
+            else if(current_char == '>'){
+                if(next_char == '='){
+                    current_token = (Token){TokenType::GTE, ">=", 0, line, col};
+                    advance(source, i, line, col);
+                }
+                else if(next_char == '>'){
+                    current_token = (Token){TokenType::RSHIFT, ">>", 0, line, col};
+                    advance(source, i, line, col);
+                }
+                else{
+                    current_token = (Token){TokenType::GT, ">", 0, line, col};
+                }
+                token_list.push_back(current_token);
+                advance(source, i, line, col);
+            }
+            else if(current_char == '&'){
+                if(next_char == '&'){
+                    current_token = (Token){TokenType::ANDAND, "&&", 0, line, col};
+                    advance(source, i, line, col);
+                }
+                else{
+                    current_token = (Token){TokenType::AND, "&", 0, line, col};
+                }
+                token_list.push_back(current_token);
+                advance(source, i, line, col);
+            }
+            else if(current_char == '|'){
+                if(next_char == '|'){
+                    current_token = (Token){TokenType::OROR, "||", 0, line, col};
+                    advance(source, i, line, col);
+                }
+                else{
+                    current_token = (Token){TokenType::OR, "|", 0, line, col};
+                }
+                token_list.push_back(current_token);
+                advance(source, i, line, col);
+            }
+            else if(current_char == '^'){
+                if(next_char == '='){
+                    current_token = (Token){TokenType::XOR_ASSIGN, "^=", 0, line, col};
+                    advance(source, i, line, col);
+                }
+                else{
+                    current_token = (Token){TokenType::XOR, "^", 0, line, col};
+                }
+                token_list.push_back(current_token);
+                advance(source, i, line, col);
+            }
             else if(current_char == '/' && next_char == '/'){ //single line comment
                 scanComment_Single(source, i, line, col);
             }
