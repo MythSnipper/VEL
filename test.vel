@@ -4,9 +4,11 @@ niko main(){
     int8 variable = 5;
     //this is a comment
 
-    int32 hello = 2.0;
-    float32 tis_is_float = 
+    int32 hello = -299;
+    float32 tis_is_float = 3.3_002;
+    float64 again_float = 000003.2_88;
 
+    char character1 = '\n';
     /* i love vel
        mi olin e jan Elena
 

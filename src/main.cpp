@@ -39,7 +39,7 @@ int main(int argc, char* argv[]){
     std::vector<Token> tokens = Lexer::tokenize(source);
     std::cout << "Tokens: \n";
     for(Token t : tokens){
-        std::cout << Lexer::KeywordToString(t.type) << ' ' << t.text << ' ' << t.value << ' ' << t.line << ' ' << t.col << '\n';
+        std::cout << Lexer::KeywordToString(t.type) << '|' << t.text << '|' << t.value << ' ' << t.valuef << "       " << t.line << ' ' << t.col << '\n';
     }
     /*
     asm{

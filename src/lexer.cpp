@@ -113,39 +113,51 @@ namespace Lexer{
                 token_list.push_back(current_token);
             }
 
-
+            //scan for int literal
+            else if(isdigit(current_char)){
+                current_token = scanNumLiteral(source, i, line, col);
+                token_list.push_back(current_token);
+            }
+            else if(current_char == '\"'){
+                current_token = scanCharLiteral(source, i, line, col);
+                token_list.push_back(current_token);
+            }
+            else if(current_char == '\"'){
+                current_token = scanCharLiteral(source, i, line, col);
+                token_list.push_back(current_token);
+            }
 
 
 
 
             //grammar, punctuation stuff
             else if(current_char == ';'){
-                current_token = (Token){TokenType::SEMICOLON, ";", 0, line, col};
+                current_token = (Token){TokenType::SEMICOLON, ";", 0, 0, line, col};
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
             else if(current_char == ','){
-                current_token = (Token){TokenType::COMMA, ",", 0, line, col};
+                current_token = (Token){TokenType::COMMA, ",", 0, 0, line, col};
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
             else if(current_char == '('){
-                current_token = (Token){TokenType::LPAREN, "(", 0, line, col};
+                current_token = (Token){TokenType::LPAREN, "(", 0, 0, line, col};
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
             else if(current_char == ')'){
-                current_token = (Token){TokenType::RPAREN, ")", 0, line, col};
+                current_token = (Token){TokenType::RPAREN, ")", 0, 0, line, col};
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
             else if(current_char == '{'){
-                current_token = (Token){TokenType::LBRACE, "{", 0, line, col};
+                current_token = (Token){TokenType::LBRACE, "{", 0, 0, line, col};
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
             else if(current_char == '}'){
-                current_token = (Token){TokenType::RBRACE, "}", 0, line, col};
+                current_token = (Token){TokenType::RBRACE, "}", 0, 0, line, col};
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
@@ -156,148 +168,148 @@ namespace Lexer{
             //operators
             else if(current_char == '+'){
                 if(next_char == '='){
-                    current_token = (Token){TokenType::ADD_ASSIGN, "+=", 0, line, col};
+                    current_token = (Token){TokenType::ADD_ASSIGN, "+=", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
                 else if(next_char == '+'){
-                    current_token = (Token){TokenType::INC, "++", 0, line, col};
+                    current_token = (Token){TokenType::INC, "++", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
                 else{
-                    current_token = (Token){TokenType::ADD, "+", 0, line, col};
+                    current_token = (Token){TokenType::ADD, "+", 0, 0, line, col};
                 }
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
             else if(current_char == '-'){
                 if(next_char == '='){
-                    current_token = (Token){TokenType::SUB_ASSIGN, "-=", 0, line, col};
+                    current_token = (Token){TokenType::SUB_ASSIGN, "-=", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
                 else if(next_char == '-'){
-                    current_token = (Token){TokenType::DEC, "--", 0, line, col};
+                    current_token = (Token){TokenType::DEC, "--", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
                 else{
-                    current_token = (Token){TokenType::SUB, "-", 0, line, col};
+                    current_token = (Token){TokenType::SUB, "-", 0, 0, line, col};
                 }
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
             else if(current_char == '*'){
                 if(next_char == '='){
-                    current_token = (Token){TokenType::MUL_ASSIGN, "*=", 0, line, col};
+                    current_token = (Token){TokenType::MUL_ASSIGN, "*=", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
                 else{
-                    current_token = (Token){TokenType::MUL, "*", 0, line, col};
+                    current_token = (Token){TokenType::MUL, "*", 0, 0, line, col};
                 }
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
             else if(current_char == '/'){
                 if(next_char == '='){
-                    current_token = (Token){TokenType::DIV_ASSIGN, "/=", 0, line, col};
+                    current_token = (Token){TokenType::DIV_ASSIGN, "/=", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
                 else{
-                    current_token = (Token){TokenType::DIV, "/", 0, line, col};
+                    current_token = (Token){TokenType::DIV, "/", 0, 0, line, col};
                 }
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
             else if(current_char == '%'){
                 if(next_char == '='){
-                    current_token = (Token){TokenType::MOD_ASSIGN, "%=", 0, line, col};
+                    current_token = (Token){TokenType::MOD_ASSIGN, "%=", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
                 else{
-                    current_token = (Token){TokenType::MOD, "%", 0, line, col};
+                    current_token = (Token){TokenType::MOD, "%", 0, 0, line, col};
                 }
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
             else if(current_char == '='){
                 if(next_char == '='){
-                    current_token = (Token){TokenType::EQ, "==", 0, line, col};
+                    current_token = (Token){TokenType::EQ, "==", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
                 else{
-                    current_token = (Token){TokenType::ASSIGN, "=", 0, line, col};
+                    current_token = (Token){TokenType::ASSIGN, "=", 0, 0, line, col};
                 }
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
             else if(current_char == '!'){
                 if(next_char == '='){
-                    current_token = (Token){TokenType::NEQ, "!=", 0, line, col};
+                    current_token = (Token){TokenType::NEQ, "!=", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
                 else{
-                    current_token = (Token){TokenType::NOT, "!", 0, line, col};
+                    current_token = (Token){TokenType::NOT, "!", 0, 0, line, col};
                 }
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
             else if(current_char == '<'){
                 if(next_char == '='){
-                    current_token = (Token){TokenType::LTE, "<=", 0, line, col};
+                    current_token = (Token){TokenType::LTE, "<=", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
                 else if(next_char == '<'){
-                    current_token = (Token){TokenType::LSHIFT, "<<", 0, line, col};
+                    current_token = (Token){TokenType::LSHIFT, "<<", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
                 else{
-                    current_token = (Token){TokenType::LT, "<", 0, line, col};
+                    current_token = (Token){TokenType::LT, "<", 0, 0, line, col};
                 }
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
             else if(current_char == '>'){
                 if(next_char == '='){
-                    current_token = (Token){TokenType::GTE, ">=", 0, line, col};
+                    current_token = (Token){TokenType::GTE, ">=", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
                 else if(next_char == '>'){
-                    current_token = (Token){TokenType::RSHIFT, ">>", 0, line, col};
+                    current_token = (Token){TokenType::RSHIFT, ">>", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
                 else{
-                    current_token = (Token){TokenType::GT, ">", 0, line, col};
+                    current_token = (Token){TokenType::GT, ">", 0, 0, line, col};
                 }
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
             else if(current_char == '&'){
                 if(next_char == '&'){
-                    current_token = (Token){TokenType::ANDAND, "&&", 0, line, col};
+                    current_token = (Token){TokenType::ANDAND, "&&", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
                 else{
-                    current_token = (Token){TokenType::AND, "&", 0, line, col};
+                    current_token = (Token){TokenType::AND, "&", 0, 0, line, col};
                 }
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
             else if(current_char == '|'){
                 if(next_char == '|'){
-                    current_token = (Token){TokenType::OROR, "||", 0, line, col};
+                    current_token = (Token){TokenType::OROR, "||", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
                 else{
-                    current_token = (Token){TokenType::OR, "|", 0, line, col};
+                    current_token = (Token){TokenType::OR, "|", 0, 0, line, col};
                 }
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
             else if(current_char == '^'){
                 if(next_char == '='){
-                    current_token = (Token){TokenType::XOR_ASSIGN, "^=", 0, line, col};
+                    current_token = (Token){TokenType::XOR_ASSIGN, "^=", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
                 else{
-                    current_token = (Token){TokenType::XOR, "^", 0, line, col};
+                    current_token = (Token){TokenType::XOR, "^", 0, 0, line, col};
                 }
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
@@ -323,7 +335,7 @@ namespace Lexer{
             }
         }
 
-        token_list.push_back({TokenType::END_OF_FILE, "\0", -1, line, col});
+        token_list.push_back({TokenType::END_OF_FILE, "\0", -1, -1, line, col});
         return token_list;
     }
     void advance(const std::string& source, int& i, int& line, int& col){
@@ -349,22 +361,58 @@ namespace Lexer{
             }
             else{
                 TokenType type = checkKeywordOrIdentifier(current_text);
-                return {type, current_text, 0, startline, startcol};
+                return {type, current_text, 0, 0, startline, startcol};
             }
             advance(source, i, line, col);
         }
-
     }
     TokenType checkKeywordOrIdentifier(const std::string& text){
         return (map_kwid.find(text) != map_kwid.end()) ? map_kwid[text] : TokenType::IDENTIFIER;
-
-
     }
     std::string KeywordToString(const TokenType& type){
-        
         return (map_idkw.find(type) != map_idkw.end()) ? map_idkw[type] : "NUHUHTYPE";
-
     }
+    Token scanNumLiteral(const std::string& source, int& i, int& line, int& col){
+        std::string current_text;
+        std::string current_text_no_underscore;
+
+        int startline = line;
+        int startcol = col;
+        bool isFloat = false;
+
+        for(;i<source.length();){
+            char current_char = source[i];
+            if(isdigit(current_char) || current_char == '_'){
+                current_text += current_char;
+                if(current_char != '_'){
+                    current_text_no_underscore += current_char;
+                }
+            }
+            else if(current_char == '.'){
+                if(!isFloat){
+                    current_text += current_char;
+                    current_text_no_underscore += current_char;
+                    isFloat = true;
+                }
+                else{ //return right away
+                    TokenType type = TokenType::FLOAT_LITERAL;
+                    return {type, current_text, 0, std::stod("0" + current_text_no_underscore), startline, startcol};
+                }
+            }
+            else{
+                if(isFloat){
+                    TokenType type = TokenType::FLOAT_LITERAL;
+                    return {type, current_text, 0, (current_text_no_underscore.empty()) ? 0 : std::stod(current_text_no_underscore), startline, startcol};
+                }
+                else{
+                    TokenType type = TokenType::INT_LITERAL;
+                    return {type, current_text, (current_text_no_underscore.empty()) ? 0 : std::stoll(current_text_no_underscore), 0, startline, startcol};
+                }
+            }
+            advance(source, i, line, col);
+        }
+    }
+
     void scanComment_Single(const std::string& source, int& i, int& line, int& col){
         advance(source, i, line, col);
         advance(source, i, line, col);
@@ -391,6 +439,14 @@ namespace Lexer{
             advance(source, i, line, col);
         }
     }
+
+
+
+
+
+
+
+    //TODO
     void scanAssembly_Single(const std::string& source, int& i, int& line, int& col){
         advance(source, i, line, col);
         advance(source, i, line, col);

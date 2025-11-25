@@ -85,6 +85,7 @@ struct Token{
     TokenType type;
     std::string text;
     int64_t value;
+    double valuef;
     int line;
     int col;
 };
@@ -95,8 +96,11 @@ namespace Lexer{
     Token scanKeywordOrIdentifier(const std::string& source, int& i, int& line, int& col);
     TokenType checkKeywordOrIdentifier(const std::string& text);
     std::string KeywordToString(const TokenType& type);
+    Token scanNumLiteral(const std::string& source, int& i, int& line, int& col);
     void scanComment_Single(const std::string& source, int& i, int& line, int& col);
     void scanComment_Multi(const std::string& source, int& i, int& line, int& col);
+    void scanAssembly_Single(const std::string& source, int& i, int& line, int& col);
+    void scanAssembly_Multi(const std::string& source, int& i, int& line, int& col);
 }
 
 
