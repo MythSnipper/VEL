@@ -56,30 +56,30 @@ namespace Lexer{
         {TokenType::DIV_ASSIGN, "Div Assign"},
         {TokenType::MOD_ASSIGN, "Mod Assign"},
         {TokenType::XOR_ASSIGN, "Xor Assign"},
-        {TokenType::ADD, "Add"},
-        {TokenType::SUB, "Sub"},
-        {TokenType::MUL, "Mul"},
-        {TokenType::DIV, "Div"},
-        {TokenType::MOD, "Mod"},
-        {TokenType::EQ, "Eq"},
+        {TokenType::ADD, "ADD"},
+        {TokenType::SUB, "SUB"},
+        {TokenType::MUL, "MUL"},
+        {TokenType::DIV, "DIV"},
+        {TokenType::MOD, "MOD"},
+        {TokenType::EQ, "EQ"},
         {TokenType::NEQ, "Neq"},
-        {TokenType::LT, "Lt"},
-        {TokenType::GT, "Gt"},
-        {TokenType::LTE, "Lte"},
-        {TokenType::GTE, "Gte"},
-        {TokenType::AND, "And"},
-        {TokenType::ANDAND, "AndAnd"},
-        {TokenType::OR, "Or"},
-        {TokenType::OROR, "OrOr"},
-        {TokenType::XOR, "Xor"},    
+        {TokenType::LT, "LT"},
+        {TokenType::GT, "GT"},
+        {TokenType::LTE, "LTE"},
+        {TokenType::GTE, "GTE"},
+        {TokenType::AND, "AND"},
+        {TokenType::ANDAND, "ANDAND"},
+        {TokenType::OR, "OR"},
+        {TokenType::OROR, "OROR"},
+        {TokenType::XOR, "XOR"},    
         {TokenType::LSHIFT, "LShift"},
         {TokenType::RSHIFT, "RShift"},
-        {TokenType::NOT, "Not"},
+        {TokenType::NOT_BITWISE, "Bitwise NOT"},
+        {TokenType::NOT_LOGICAL, "Logical NOT"},
         {TokenType::INC, "Inc"},
         {TokenType::DEC, "Dec"},
         {TokenType::END_OF_FILE, "EOF"},
     };
-
 
     std::vector<Token> tokenize(const std::string& source){
         std::vector<Token> token_list;
@@ -92,21 +92,31 @@ namespace Lexer{
             char current_char = source[i];
             char next_char = (i != source.length()-1) ? source[i+1] : '\0';
 
-
             //comments
             if(current_char == '/' && next_char == '/'){ //single line comment
                 scanComment_Single(source, i, line, col);
             }
-            else if(current_char == '/' && next_char == '*'){ //multi line comment
+            else if(current_char == '/' && next_char == '{'){ //multi line comment
                 scanComment_Multi(source, i, line, col);
             }
+
+            //assembly
+            else if(current_char == '%' && next_char == '%'){ //single line assembly
+                current_token = scanAssembly_Single(source, i, line, col);
+                token_list.push_back(current_token);
+            }
+            else if(current_char == '%' && next_char == '{'){ //multi line assembly
+                current_token = scanAssembly_Multi(source, i, line, col);
+                token_list.push_back(current_token);
+            }
+
             //whitespace characters to skip
             else if(current_char == ' ' || current_char == '\n' || current_char == '\t'){
                 advance(source, i, line, col);
             }
 
 
-            
+
             //scan for keyword or identifier
             else if(isalpha(current_char) || current_char == '_'){
                 current_token = scanKeywordOrIdentifier(source, i, line, col);
@@ -126,9 +136,7 @@ namespace Lexer{
                 current_token = scanCharLiteral(source, i, line, col);
                 token_list.push_back(current_token);
             }
-
-
-
+            
 
             //grammar, punctuation stuff
             else if(current_char == ';'){
@@ -245,8 +253,12 @@ namespace Lexer{
                     current_token = (Token){TokenType::NEQ, "!=", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
+                else if(next_char == '~'){
+                    current_token = (Token){TokenType::NOT_BITWISE, "!~", 0, 0, line, col};
+                    advance(source, i, line, col);
+                }
                 else{
-                    current_token = (Token){TokenType::NOT, "!", 0, 0, line, col};
+                    current_token = (Token){TokenType::NOT_LOGICAL, "!", 0, 0, line, col};
                 }
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
@@ -365,13 +377,20 @@ namespace Lexer{
             }
             advance(source, i, line, col);
         }
+
     }
     TokenType checkKeywordOrIdentifier(const std::string& text){
         return (map_kwid.find(text) != map_kwid.end()) ? map_kwid[text] : TokenType::IDENTIFIER;
+
+
     }
     std::string KeywordToString(const TokenType& type){
+        
         return (map_idkw.find(type) != map_idkw.end()) ? map_idkw[type] : "NUHUHTYPE";
+
     }
+
+    
     Token scanNumLiteral(const std::string& source, int& i, int& line, int& col){
         std::string current_text;
         std::string current_text_no_underscore;
@@ -413,6 +432,7 @@ namespace Lexer{
         }
     }
 
+    
     void scanComment_Single(const std::string& source, int& i, int& line, int& col){
         advance(source, i, line, col);
         advance(source, i, line, col);
@@ -431,7 +451,7 @@ namespace Lexer{
         advance(source, i, line, col);
         advance(source, i, line, col);
         for(;i<source.length()-1;){
-            if(source[i] == '*' && source[i+1] == '/'){
+            if(source[i] == '}' && source[i+1] == '/'){
                 advance(source, i, line, col);
                 advance(source, i, line, col);
                 return;
@@ -439,29 +459,25 @@ namespace Lexer{
             advance(source, i, line, col);
         }
     }
-
-
-
-
-
-
-
-    //TODO
-    void scanAssembly_Single(const std::string& source, int& i, int& line, int& col){
+    Token scanAssembly_Single(const std::string& source, int& i, int& line, int& col){
         advance(source, i, line, col);
         advance(source, i, line, col);
+        std::string current_text;
         for(;i<source.length()-1;){
             if(source[i] != '\n' && source[i+1] != '\n'){
+                current_text += source[i];
+                current_text += source[i+1];
                 advance(source, i, line, col);
             }
             else if(source[i] == '\n'){
                 advance(source, i, line, col);
-                return;
+                current_text += source[i];
+                return {TokenType::ASSEMBLY, current_text, 0, line, col};
             }
             advance(source, i, line, col);
         }
     }
-    void scanAssembly_Multi(const std::string& source, int& i, int& line, int& col){
+    Token scanAssembly_Multi(const std::string& source, int& i, int& line, int& col){
         advance(source, i, line, col);
         advance(source, i, line, col);
         for(;i<source.length()-1;){
