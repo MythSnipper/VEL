@@ -29,12 +29,11 @@ enum class TokenType{
     //identifiers and literals
     IDENTIFIER,
     INT_LITERAL,
-    STRING_LITERAL,
+    FLOAT_LITERAL,
     CHAR_LITERAL,
+    STRING_LITERAL,
 
-    // Operators
-
-    // Punctuation
+    //punctuation
     SEMICOLON,  // ;
     COMMA,      // ,
     LPAREN,     // (
@@ -42,8 +41,8 @@ enum class TokenType{
     LBRACE,     // {
     RBRACE,     // }
 
-
-    //assignment
+    
+    //operators
     ASSIGN,     // =
     ADD_ASSIGN, // +=
     SUB_ASSIGN, // -=
@@ -52,20 +51,19 @@ enum class TokenType{
     MOD_ASSIGN, // %=
     XOR_ASSIGN, // ^=
 
-    //binary
     ADD,        // +
     SUB,        // -
     MUL,        // *
     DIV,        // /
     MOD,        // %
-        //comparison
+
     EQ,         // ==
     NEQ,        // !=
     LT,         // <
     GT,         // >
     LTE,        // <=
     GTE,        // >=
-        //logic
+
     AND,        // &
     ANDAND,     // &&
     OR,         // |
@@ -75,39 +73,11 @@ enum class TokenType{
     RSHIFT,     // >>
 
     //prefix
-    //NEG,        // -
     NOT,        // !
-
     INC,        // ++
     DEC,        // --
-/*
-    +, +=, ++
-    -, -=, --
-    *, *=
-    /, /=
-    %, %=
-    =, ==
-    !, !=
-    <, <=, <<
-    >, >=, >>
-    &, &&
-    |, ||
-    ^, ^=
 
-*/
-
-
-/* dead logic for lexer
-    LINC,       // ++
-    LDEC,       // --
-
-    //postfix
-    RINC,       // ++
-    RDEC,       // --
-
-*/
-
-    // Special
+    //special
     END_OF_FILE,
 };
 
@@ -122,8 +92,9 @@ struct Token{
 namespace Lexer{
     std::vector<Token> tokenize(const std::string& source);
     void advance(const std::string& source, int& i, int& line, int& col);
-    Token scanKW_Identifier(const std::string& source, int& i, int& line, int& col);
-    TokenType checkKW_identifier(const std::string& text);
+    Token scanKeywordOrIdentifier(const std::string& source, int& i, int& line, int& col);
+    TokenType checkKeywordOrIdentifier(const std::string& text);
+    std::string KeywordToString(const TokenType& type);
     void scanComment_Single(const std::string& source, int& i, int& line, int& col);
     void scanComment_Multi(const std::string& source, int& i, int& line, int& col);
 }

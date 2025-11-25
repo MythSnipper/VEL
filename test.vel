@@ -3,6 +3,10 @@
 niko main(){
     int8 variable = 5;
     //this is a comment
+
+    int32 hello = 2.0;
+    float32 tis_is_float = 
+
     /* i love vel
        mi olin e jan Elena
 

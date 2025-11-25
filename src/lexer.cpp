@@ -2,6 +2,85 @@
 
 
 namespace Lexer{
+
+    std::unordered_map<std::string, TokenType> map_kwid = {
+        {"int8", TokenType::INT8_KEYWORD},
+        {"int16", TokenType::INT16_KEYWORD},
+        {"int32", TokenType::INT32_KEYWORD},
+        {"int64", TokenType::INT64_KEYWORD},
+        {"uint8", TokenType::UINT8_KEYWORD},
+        {"uint16", TokenType::UINT16_KEYWORD},
+        {"uint32", TokenType::UINT32_KEYWORD},
+        {"uint64", TokenType::UINT64_KEYWORD},
+        {"char", TokenType::CHAR_KEYWORD},
+        {"float", TokenType::FLOAT_KEYWORD},
+        {"double", TokenType::DOUBLE_KEYWORD},
+        {"if", TokenType::IF_KEYWORD},
+        {"else", TokenType::ELSE_KEYWORD},
+        {"while", TokenType::WHILE_KEYWORD},
+        {"for", TokenType::FOR_KEYWORD},
+        {"return", TokenType::RETURN_KEYWORD}
+    };
+    std::unordered_map<TokenType, std::string> map_idkw = {
+        {TokenType::INT8_KEYWORD, "Keyword int8"},
+        {TokenType::INT16_KEYWORD, "Keyword int16"},
+        {TokenType::INT32_KEYWORD, "Keyword int32"},
+        {TokenType::INT64_KEYWORD, "Keyword int64"},
+        {TokenType::UINT8_KEYWORD, "Keyword uint8"},
+        {TokenType::UINT16_KEYWORD, "Keyword uint16"},
+        {TokenType::UINT32_KEYWORD, "Keyword uint32"},
+        {TokenType::UINT64_KEYWORD, "Keyword uint64"},
+        {TokenType::CHAR_KEYWORD, "Keyword char"},
+        {TokenType::FLOAT_KEYWORD, "Keyword float"},
+        {TokenType::DOUBLE_KEYWORD, "Keyword double"},
+        {TokenType::IF_KEYWORD, "Keyword if"},
+        {TokenType::ELSE_KEYWORD, "Keyword else"},
+        {TokenType::WHILE_KEYWORD, "Keyword while"},
+        {TokenType::FOR_KEYWORD, "Keyword for"},
+        {TokenType::RETURN_KEYWORD, "Keyword return"},
+        {TokenType::IDENTIFIER, "Identifier"},
+        {TokenType::INT_LITERAL, "Literal Int"},
+        {TokenType::FLOAT_LITERAL, "Literal Float"},
+        {TokenType::CHAR_LITERAL, "Literal Char"},
+        {TokenType::STRING_LITERAL, "Literal String"},
+        {TokenType::SEMICOLON, "Semicolon"}, 
+        {TokenType::COMMA, "Comma"},
+        {TokenType::LPAREN, "LParen"},
+        {TokenType::RPAREN, "RParen"},
+        {TokenType::LBRACE, "LBrace"},
+        {TokenType::RBRACE, "RBrace"},
+        {TokenType::ASSIGN, "Assign"},
+        {TokenType::ADD_ASSIGN, "Add Assign"},
+        {TokenType::SUB_ASSIGN, "Sub Assign"},
+        {TokenType::MUL_ASSIGN, "Mul Assign"},
+        {TokenType::DIV_ASSIGN, "Div Assign"},
+        {TokenType::MOD_ASSIGN, "Mod Assign"},
+        {TokenType::XOR_ASSIGN, "Xor Assign"},
+        {TokenType::ADD, "Add"},
+        {TokenType::SUB, "Sub"},
+        {TokenType::MUL, "Mul"},
+        {TokenType::DIV, "Div"},
+        {TokenType::MOD, "Mod"},
+        {TokenType::EQ, "Eq"},
+        {TokenType::NEQ, "Neq"},
+        {TokenType::LT, "Lt"},
+        {TokenType::GT, "Gt"},
+        {TokenType::LTE, "Lte"},
+        {TokenType::GTE, "Gte"},
+        {TokenType::AND, "And"},
+        {TokenType::ANDAND, "AndAnd"},
+        {TokenType::OR, "Or"},
+        {TokenType::OROR, "OrOr"},
+        {TokenType::XOR, "Xor"},    
+        {TokenType::LSHIFT, "LShift"},
+        {TokenType::RSHIFT, "RShift"},
+        {TokenType::NOT, "Not"},
+        {TokenType::INC, "Inc"},
+        {TokenType::DEC, "Dec"},
+        {TokenType::END_OF_FILE, "EOF"},
+    };
+
+
     std::vector<Token> tokenize(const std::string& source){
         std::vector<Token> token_list;
 
@@ -13,11 +92,34 @@ namespace Lexer{
             char current_char = source[i];
             char next_char = (i != source.length()-1) ? source[i+1] : '\0';
 
-            if(isalpha(current_char) || current_char == '_'){ //scan for keyword or identifier
-                current_token = scanKW_Identifier(source, i, line, col);
+
+            //comments
+            if(current_char == '/' && next_char == '/'){ //single line comment
+                scanComment_Single(source, i, line, col);
+            }
+            else if(current_char == '/' && next_char == '*'){ //multi line comment
+                scanComment_Multi(source, i, line, col);
+            }
+            //whitespace characters to skip
+            else if(current_char == ' ' || current_char == '\n' || current_char == '\t'){
+                advance(source, i, line, col);
+            }
+
+
+            
+            //scan for keyword or identifier
+            else if(isalpha(current_char) || current_char == '_'){
+                current_token = scanKeywordOrIdentifier(source, i, line, col);
                 token_list.push_back(current_token);
             }
-            else if(current_char == ';'){ //punctuation
+
+
+
+
+
+
+            //grammar, punctuation stuff
+            else if(current_char == ';'){
                 current_token = (Token){TokenType::SEMICOLON, ";", 0, line, col};
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
@@ -51,12 +153,7 @@ namespace Lexer{
 
 
 
-
-
-
-
-
-            //add rules for operators
+            //operators
             else if(current_char == '+'){
                 if(next_char == '='){
                     current_token = (Token){TokenType::ADD_ASSIGN, "+=", 0, line, col};
@@ -205,15 +302,14 @@ namespace Lexer{
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
             }
-            else if(current_char == '/' && next_char == '/'){ //single line comment
-                scanComment_Single(source, i, line, col);
-            }
-            else if(current_char == '/' && next_char == '*'){ //multi line comment
-                scanComment_Multi(source, i, line, col);
-            }
-            else if(current_char == ' ' || current_char == '\n' || current_char == '\t'){
-                advance(source, i, line, col);
-            }
+
+
+
+
+
+
+
+            //invalid characters
             else{
                 std::cout << "Invalid character: " << current_char << " ";
                 if(next_char != NULL){
@@ -240,8 +336,11 @@ namespace Lexer{
         }
         i++;
     }
-    Token scanKW_Identifier(const std::string& source, int& i, int& line, int& col){
+    Token scanKeywordOrIdentifier(const std::string& source, int& i, int& line, int& col){
         std::string current_text;
+
+        int startline = line;
+        int startcol = col;
 
         for(;i<source.length();){
             char current_char = source[i];
@@ -249,35 +348,21 @@ namespace Lexer{
                 current_text += current_char;
             }
             else{
-                TokenType type = checkKW_identifier(current_text);
-                return {type, current_text, 0, line, col};
+                TokenType type = checkKeywordOrIdentifier(current_text);
+                return {type, current_text, 0, startline, startcol};
             }
             advance(source, i, line, col);
         }
 
+    }
+    TokenType checkKeywordOrIdentifier(const std::string& text){
+        return (map_kwid.find(text) != map_kwid.end()) ? map_kwid[text] : TokenType::IDENTIFIER;
+
 
     }
-    TokenType checkKW_identifier(const std::string& text){
-        std::unordered_map<std::string, TokenType> map = {
-            {"int8", TokenType::INT8_KEYWORD},
-            {"int16", TokenType::INT16_KEYWORD},
-            {"int32", TokenType::INT32_KEYWORD},
-            {"int64", TokenType::INT64_KEYWORD},
-            {"uint8", TokenType::UINT8_KEYWORD},
-            {"uint16", TokenType::UINT16_KEYWORD},
-            {"uint32", TokenType::UINT32_KEYWORD},
-            {"uint64", TokenType::UINT64_KEYWORD},
-            {"char", TokenType::CHAR_KEYWORD},
-            {"float", TokenType::FLOAT_KEYWORD},
-            {"double", TokenType::DOUBLE_KEYWORD},
-            {"if", TokenType::IF_KEYWORD},
-            {"else", TokenType::ELSE_KEYWORD},
-            {"while", TokenType::WHILE_KEYWORD},
-            {"for", TokenType::FOR_KEYWORD},
-            {"return", TokenType::RETURN_KEYWORD}
-        };
-        return (map.find(text) != map.end()) ? map[text] : TokenType::IDENTIFIER;
-
+    std::string KeywordToString(const TokenType& type){
+        
+        return (map_idkw.find(type) != map_idkw.end()) ? map_idkw[type] : "NUHUHTYPE";
 
     }
     void scanComment_Single(const std::string& source, int& i, int& line, int& col){
@@ -295,6 +380,32 @@ namespace Lexer{
         }
     }
     void scanComment_Multi(const std::string& source, int& i, int& line, int& col){
+        advance(source, i, line, col);
+        advance(source, i, line, col);
+        for(;i<source.length()-1;){
+            if(source[i] == '*' && source[i+1] == '/'){
+                advance(source, i, line, col);
+                advance(source, i, line, col);
+                return;
+            }
+            advance(source, i, line, col);
+        }
+    }
+    void scanAssembly_Single(const std::string& source, int& i, int& line, int& col){
+        advance(source, i, line, col);
+        advance(source, i, line, col);
+        for(;i<source.length()-1;){
+            if(source[i] != '\n' && source[i+1] != '\n'){
+                advance(source, i, line, col);
+            }
+            else if(source[i] == '\n'){
+                advance(source, i, line, col);
+                return;
+            }
+            advance(source, i, line, col);
+        }
+    }
+    void scanAssembly_Multi(const std::string& source, int& i, int& line, int& col){
         advance(source, i, line, col);
         advance(source, i, line, col);
         for(;i<source.length()-1;){
