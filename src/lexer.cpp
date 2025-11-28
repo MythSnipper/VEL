@@ -15,6 +15,7 @@ namespace Lexer{
         {"char", TokenType::CHAR_KEYWORD},
         {"float", TokenType::FLOAT_KEYWORD},
         {"double", TokenType::DOUBLE_KEYWORD},
+        {"string", TokenType::STRING_KEYWORD},
         {"if", TokenType::IF_KEYWORD},
         {"else", TokenType::ELSE_KEYWORD},
         {"while", TokenType::WHILE_KEYWORD},
@@ -33,6 +34,7 @@ namespace Lexer{
         {TokenType::CHAR_KEYWORD, "Keyword char"},
         {TokenType::FLOAT_KEYWORD, "Keyword float"},
         {TokenType::DOUBLE_KEYWORD, "Keyword double"},
+        {TokenType::STRING_KEYWORD, "Keyword string"},
         {TokenType::IF_KEYWORD, "Keyword if"},
         {TokenType::ELSE_KEYWORD, "Keyword else"},
         {TokenType::WHILE_KEYWORD, "Keyword while"},
@@ -43,6 +45,7 @@ namespace Lexer{
         {TokenType::FLOAT_LITERAL, "Literal Float"},
         {TokenType::CHAR_LITERAL, "Literal Char"},
         {TokenType::STRING_LITERAL, "Literal String"},
+        {TokenType::ASSEMBLY, "Assembly :3"},
         {TokenType::SEMICOLON, "Semicolon"}, 
         {TokenType::COMMA, "Comma"},
         {TokenType::LPAREN, "LParen"},
@@ -129,10 +132,10 @@ namespace Lexer{
                 token_list.push_back(current_token);
             }
             else if(current_char == '\"'){
-                current_token = scanCharLiteral(source, i, line, col);
+                current_token = scanStringLiteral(source, i, line, col);
                 token_list.push_back(current_token);
             }
-            else if(current_char == '\"'){
+            else if(current_char == '\''){
                 current_token = scanCharLiteral(source, i, line, col);
                 token_list.push_back(current_token);
             }
@@ -389,7 +392,7 @@ namespace Lexer{
         return (map_idkw.find(type) != map_idkw.end()) ? map_idkw[type] : "NUHUHTYPE";
 
     }
-
+    
     
     Token scanNumLiteral(const std::string& source, int& i, int& line, int& col){
         std::string current_text;
@@ -431,8 +434,92 @@ namespace Lexer{
             advance(source, i, line, col);
         }
     }
-
+    Token scanStringLiteral(const std::string& source, int& i, int& line, int& col){
+        advance(source, i, line, col);
+        int startLine = line;
+        int startCol = col;
     
+        std::string currentText;
+    
+        while(i < source.length()) {
+            char c = source[i];
+    
+            if(c == '\"'){
+                advance(source, i, line, col);
+                return {TokenType::STRING_LITERAL, currentText, 0, 0, startLine, startCol};
+            } 
+            else if(c == '\\'){
+                if(i + 1 >= source.length()) break;
+                char nextChar = source[i + 1];
+                switch(nextChar) {
+                    case 'n': currentText += '\n'; break;
+                    case 't': currentText += '\t'; break;
+                    case 'r': currentText += '\r'; break;
+                    case 'f': currentText += '\f'; break;
+                    case 'b': currentText += '\b'; break;
+                    case '\\': currentText += '\\'; break;
+                    case '"': currentText += '"'; break;
+                    case '\'': currentText += '\''; break;
+                    default: currentText += nextChar; break;
+                }
+                advance(source, i, line, col);
+                advance(source, i, line, col);
+            } 
+            else{
+                currentText += c;
+                advance(source, i, line, col);
+            }
+        }
+    
+        return {TokenType::STRING_LITERAL, currentText, 0, 0, startLine, startCol};
+    }
+    Token scanCharLiteral(const std::string& source, int& i, int& line, int& col){
+        advance(source, i, line, col);
+        int startLine = line;
+        int startCol = col;
+    
+        char value = '\0';
+        std::string text;
+    
+        char c = source[i];
+    
+        if(c == '\\'){
+            if(i < source.length()-1){
+                char next_char = source[i+1];
+                switch(next_char){
+                    case 'n': value = '\n'; break;
+                    case 't': value = '\t'; break;
+                    case 'r': value = '\r'; break;
+                    case 'f': value = '\f'; break;
+                    case 'b': value = '\b'; break;
+                    case '\\': value = '\\'; break;
+                    case '\'': value = '\''; break;
+                    case '\"': value = '\"'; break;
+                    default: value = next_char; break;
+                }
+                advance(source, i, line, col);
+                advance(source, i, line, col);
+            }
+            else{
+                value = '\\';
+                advance(source, i, line, col);
+            }
+        }
+        else{
+            value = c;
+            advance(source, i, line, col);
+        }
+    
+        if(i < source.length() && source[i] == '\''){
+            advance(source, i, line, col);
+        }
+    
+        text += value;
+        return {TokenType::CHAR_LITERAL, text, value, 0, startLine, startCol};
+    }
+    
+
+
     void scanComment_Single(const std::string& source, int& i, int& line, int& col){
         advance(source, i, line, col);
         advance(source, i, line, col);
@@ -468,26 +555,33 @@ namespace Lexer{
                 current_text += source[i];
                 current_text += source[i+1];
                 advance(source, i, line, col);
-            }
-            else if(source[i] == '\n'){
                 advance(source, i, line, col);
-                current_text += source[i];
-                return {TokenType::ASSEMBLY, current_text, 0, line, col};
             }
-            advance(source, i, line, col);
+            else if(source[i] != '\n'){
+                current_text += source[i];
+                advance(source, i, line, col);
+            }
+            else{
+                advance(source, i, line, col);
+                return {TokenType::ASSEMBLY, current_text + "\n", 0, 0, line, col};
+            }
         }
+        return {TokenType::ASSEMBLY, current_text + "\n", 0, 0, line, col};
     }
     Token scanAssembly_Multi(const std::string& source, int& i, int& line, int& col){
         advance(source, i, line, col);
         advance(source, i, line, col);
+        std::string current_text;
         for(;i<source.length()-1;){
-            if(source[i] == '*' && source[i+1] == '/'){
+            if(source[i] == '}' && source[i+1] == '%'){
                 advance(source, i, line, col);
                 advance(source, i, line, col);
-                return;
+                return {TokenType::ASSEMBLY, current_text + "\n", 0, 0, line, col};
             }
+            current_text += source[i];
             advance(source, i, line, col);
         }
+        return {TokenType::ASSEMBLY, current_text + "\n", 0, 0, line, col};
     }
 
 

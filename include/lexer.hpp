@@ -2,7 +2,6 @@
 #define LEXER_HPP
 
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -20,6 +19,7 @@ enum class TokenType{
     CHAR_KEYWORD,
     FLOAT_KEYWORD,
     DOUBLE_KEYWORD,
+    STRING_KEYWORD,
     IF_KEYWORD,
     ELSE_KEYWORD,
     WHILE_KEYWORD,
@@ -32,6 +32,7 @@ enum class TokenType{
     FLOAT_LITERAL,
     CHAR_LITERAL,
     STRING_LITERAL,
+    ASSEMBLY,
 
     //punctuation
     SEMICOLON,  // ;
@@ -73,7 +74,8 @@ enum class TokenType{
     RSHIFT,     // >>
 
     //prefix
-    NOT,        // !
+    NOT_LOGICAL,        // !
+    NOT_BITWISE,        // !~
     INC,        // ++
     DEC,        // --
 
@@ -97,10 +99,12 @@ namespace Lexer{
     TokenType checkKeywordOrIdentifier(const std::string& text);
     std::string KeywordToString(const TokenType& type);
     Token scanNumLiteral(const std::string& source, int& i, int& line, int& col);
+    Token scanStringLiteral(const std::string& source, int& i, int& line, int& col);
+    Token scanCharLiteral(const std::string& source, int& i, int& line, int& col);
     void scanComment_Single(const std::string& source, int& i, int& line, int& col);
     void scanComment_Multi(const std::string& source, int& i, int& line, int& col);
-    void scanAssembly_Single(const std::string& source, int& i, int& line, int& col);
-    void scanAssembly_Multi(const std::string& source, int& i, int& line, int& col);
+    Token scanAssembly_Single(const std::string& source, int& i, int& line, int& col);
+    Token scanAssembly_Multi(const std::string& source, int& i, int& line, int& col);
 }
 
 
