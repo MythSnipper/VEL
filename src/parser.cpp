@@ -303,6 +303,73 @@ std::unique_ptr<Return> parseReturn(const std::vector<Token>& tokenList, int& in
 
 std::unique_ptr<If> parseIf(const std::vector<Token>& tokenList, int& index){
     std::unique_ptr<If> ifNode = std::make_unique<If>(If{});
+    advance(tokenList, index, 1); //skip if keyword
+
+    //skip LPAREN
+    if(!isType(getToken(tokenList, index), TokenType::LPAREN)){ //Check if the token is LPAREN
+        std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+        throw std::runtime_error("Invalid token in parseIf: Expected Left Parenthesis when parsing if");
+    }
+    advance(tokenList, index, 1); //skip LPAREN
+
+    //parse the condition
+    ifNode->Condition = parseExpression(tokenList, index);
+    
+    //skip RPAREN
+    if(!isType(getToken(tokenList, index), TokenType::RPAREN)){ //Check if the token is RPAREN
+        std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+        throw std::runtime_error("Invalid token in parseIf: Expected Right Parenthesis when parsing if");
+    }
+    advance(tokenList, index, 1); //skip RPAREN
+
+    //parse the body
+    ifNode->Body = parseStatement(tokenList, index);
+
+    //Parse elseifs
+    while(isType(getToken(tokenList, index), TokenType::ELSE_KEYWORD) && isType(getToken(tokenList, index, 1), TokenType::IF_KEYWORD)){
+        std::unique_ptr<ElseIf> elseIfNode = std::make_unique<ElseIf>(ElseIf{});
+        //skip the else if
+        advance(tokenList, index, 2);
+
+        //skip LPAREN
+        if(!isType(getToken(tokenList, index), TokenType::LPAREN)){ //Check if the token is LPAREN
+            std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+            throw std::runtime_error("Invalid token in parseIf: Expected Left Parenthesis when parsing elseif");
+        }
+        advance(tokenList, index, 1); //skip LPAREN
+
+        //parse the condition
+        elseIfNode->Condition = parseExpression(tokenList, index);
+        
+        //skip RPAREN
+        if(!isType(getToken(tokenList, index), TokenType::RPAREN)){ //Check if the token is RPAREN
+            std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+            throw std::runtime_error("Invalid token in parseIf: Expected Right Parenthesis when parsing elseif");
+        }
+        advance(tokenList, index, 1); //skip RPAREN
+
+        //parse the body
+        elseIfNode->Body = parseStatement(tokenList, index);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     return ifNode;
 }
 

@@ -203,13 +203,14 @@ struct ExpressionStatement : Statement{
     std::unique_ptr<Expression> Expr;
 };
 
+struct ElseIf{
+    std::unique_ptr<Expression> Condition;
+    std::unique_ptr<Statement> Body; //Statement or Block
+};
+
 struct If : Statement {
     std::unique_ptr<Expression> Condition;
     std::unique_ptr<Statement> Body; //Statement or Block
-    struct ElseIf{
-        std::unique_ptr<Expression> Condition;
-        std::unique_ptr<Statement> Body; //Statement or Block
-    };
     std::vector<ElseIf> ElseIfs;
     std::unique_ptr<Statement> Else; //Statement or Block or nullptr
 };
