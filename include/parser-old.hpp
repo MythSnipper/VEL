@@ -8,40 +8,52 @@
 #include <unordered_map>
 #include <memory>
 
+struct Type{
+    bool isBuiltin;
+    LiteralType builtinType; // valid if isBuiltin
+    std::string name;        // user-defined type
+};
+
+
 struct ASTNode{
     virtual ~ASTNode(){};
 };
 
+struct Declaration : ASTNode{};
+struct Expression : ASTNode{};
+struct Statement : ASTNode{};
+
 struct Program : ASTNode{
-    std::vector<std::unique_ptr<ASTNode>> TopLevel; //VariableDeclaration or Function
+    std::vector<std::unique_ptr<Declaration>> TopLevel;
 };
 
-struct VariableDeclaration : ASTNode{
-    std::string Typename;
+struct VariableDeclaration : Declaration{
+    Type Typename;
     std::string Identifier;
     std::unique_ptr<Expression> Expression; //Expression or nullptr
 };
 
-struct Function : ASTNode{
-    std::string ReturnType;
+struct Function : Declaration{
+    Type ReturnType;
     std::string Identifier;
     std::vector<std::pair<std::string, std::string>> Parameters; //Typename, Identifier
     std::unique_ptr<Block> Body; 
 };
 
-struct Block : ASTNode{
+
+struct Block : Statement{
     std::vector<std::unique_ptr<Statement>> Statements;
 };
 
-struct Return : ASTNode{
+struct Return : Statement{
     std::unique_ptr<Expression> Expression;
 };
 
-struct ExpressionStatement : ASTNode{
+struct ExpressionStatement : Statement{
     std::unique_ptr<Expression> Expression;
 };
 
-struct If : ASTNode {
+struct If : Statement {
     std::unique_ptr<Expression> Condition;
     std::unique_ptr<ASTNode> Body; //Statement or Block
     struct ElseIf{
@@ -52,21 +64,22 @@ struct If : ASTNode {
     std::unique_ptr<ASTNode> Else; //Statement or Block or nullptr
 };
 
-struct WhileNode : ASTNode{
+struct While : Statement{
     std::unique_ptr<Expression> Condition;
     std::unique_ptr<ASTNode> Body; //Statement or Block or nullptr
 };
 
-struct ForNode : ASTNode{
+struct For : Statement{
     std::unique_ptr<ASTNode> Initializer; //Expression or VariableDeclaration or nullptr
     std::unique_ptr<Expression> Condition; //Expression or nullptr
     std::unique_ptr<Expression> Modifier; //Expression or nullptr
     std::unique_ptr<ASTNode> Body; //Statement or Block or nullptr
 };
 
+struct Empty : Statement{
 
-struct Expression : ASTNode{};
-struct Statement : ASTNode{};
+};
+
 
 struct Literal : Expression{
     LiteralType Type;
@@ -105,6 +118,10 @@ struct AssignmentOp : Expression{
     std::unique_ptr<Identifier> Target;
     AssignmentOperator Op;
     std::unique_ptr<Expression> Modifier;
+};
+
+enum class LiteralType{
+
 };
 
 enum class PostfixOperator{

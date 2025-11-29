@@ -35,12 +35,21 @@ int main(int argc, char* argv[]){
     std::cout << "Source Code: \n" << "\t-----------------------------\n";
     std::cout << source;
     std::cout << "\t-----------------------------\n";
+
+
+
     //Lexer
     std::vector<Token> tokens = Lexer::tokenize(source);
     std::cout << "Tokens: \n";
     for(Token t : tokens){
         std::cout << Lexer::KeywordToString(t.type) << '|' << t.text << '|' << t.value << ' ' << t.valuef << "       " << t.line << ' ' << t.col << '\n';
     }
+
+    //Parser
+    Program AST = constructAST(tokens);
+
+
+
     /*
     asm{
         section .data

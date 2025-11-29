@@ -4,6 +4,7 @@
 namespace Lexer{
 
     std::unordered_map<std::string, TokenType> map_kwid = {
+        {"vel", TokenType::VEL_KEYWORD},
         {"int8", TokenType::INT8_KEYWORD},
         {"int16", TokenType::INT16_KEYWORD},
         {"int32", TokenType::INT32_KEYWORD},
@@ -13,9 +14,10 @@ namespace Lexer{
         {"uint32", TokenType::UINT32_KEYWORD},
         {"uint64", TokenType::UINT64_KEYWORD},
         {"char", TokenType::CHAR_KEYWORD},
-        {"float", TokenType::FLOAT_KEYWORD},
-        {"double", TokenType::DOUBLE_KEYWORD},
+        {"float32", TokenType::FLOAT32_KEYWORD},
+        {"float64", TokenType::FLOAT64_KEYWORD},
         {"string", TokenType::STRING_KEYWORD},
+        {"void", TokenType::VOID_KEYWORD},
         {"if", TokenType::IF_KEYWORD},
         {"else", TokenType::ELSE_KEYWORD},
         {"while", TokenType::WHILE_KEYWORD},
@@ -23,6 +25,7 @@ namespace Lexer{
         {"return", TokenType::RETURN_KEYWORD}
     };
     std::unordered_map<TokenType, std::string> map_idkw = {
+        {TokenType::VEL_KEYWORD, "VEL :3"},
         {TokenType::INT8_KEYWORD, "Keyword int8"},
         {TokenType::INT16_KEYWORD, "Keyword int16"},
         {TokenType::INT32_KEYWORD, "Keyword int32"},
@@ -32,9 +35,10 @@ namespace Lexer{
         {TokenType::UINT32_KEYWORD, "Keyword uint32"},
         {TokenType::UINT64_KEYWORD, "Keyword uint64"},
         {TokenType::CHAR_KEYWORD, "Keyword char"},
-        {TokenType::FLOAT_KEYWORD, "Keyword float"},
-        {TokenType::DOUBLE_KEYWORD, "Keyword double"},
+        {TokenType::FLOAT32_KEYWORD, "Keyword float32"},
+        {TokenType::FLOAT64_KEYWORD, "Keyword float64"},
         {TokenType::STRING_KEYWORD, "Keyword string"},
+        {TokenType::VOID_KEYWORD, "Keyword void"},
         {TokenType::IF_KEYWORD, "Keyword if"},
         {TokenType::ELSE_KEYWORD, "Keyword else"},
         {TokenType::WHILE_KEYWORD, "Keyword while"},
@@ -53,19 +57,25 @@ namespace Lexer{
         {TokenType::LBRACE, "LBrace"},
         {TokenType::RBRACE, "RBrace"},
         {TokenType::ASSIGN, "Assign"},
-        {TokenType::ADD_ASSIGN, "Add Assign"},
-        {TokenType::SUB_ASSIGN, "Sub Assign"},
-        {TokenType::MUL_ASSIGN, "Mul Assign"},
-        {TokenType::DIV_ASSIGN, "Div Assign"},
-        {TokenType::MOD_ASSIGN, "Mod Assign"},
-        {TokenType::XOR_ASSIGN, "Xor Assign"},
+        {TokenType::ADD_ASSIGN, "ADD Assign"},
+        {TokenType::SUB_ASSIGN, "SUB Assign"},
+        {TokenType::MUL_ASSIGN, "MUL Assign"},
+        {TokenType::DIV_ASSIGN, "DIV Assign"},
+        {TokenType::MOD_ASSIGN, "MOD Assign"},
+        {TokenType::AND_ASSIGN, "AND Assign"},
+        {TokenType::OR_ASSIGN, "OR Assign"},
+        {TokenType::XOR_ASSIGN, "XOR Assign"},
+        {TokenType::LSHIFT_ASSIGN, "LSHIFT Assign"},
+        {TokenType::RSHIFT_ASSIGN, "RSHIFT Assign"},
+        {TokenType::NOT_ASSIGN, "NOT Assign"},
+        {TokenType::SWAP, "SWAP"},
         {TokenType::ADD, "ADD"},
         {TokenType::SUB, "SUB"},
         {TokenType::MUL, "MUL"},
         {TokenType::DIV, "DIV"},
         {TokenType::MOD, "MOD"},
         {TokenType::EQ, "EQ"},
-        {TokenType::NEQ, "Neq"},
+        {TokenType::NEQ, "NEQ"},
         {TokenType::LT, "LT"},
         {TokenType::GT, "GT"},
         {TokenType::LTE, "LTE"},
@@ -75,12 +85,12 @@ namespace Lexer{
         {TokenType::OR, "OR"},
         {TokenType::OROR, "OROR"},
         {TokenType::XOR, "XOR"},    
-        {TokenType::LSHIFT, "LShift"},
-        {TokenType::RSHIFT, "RShift"},
+        {TokenType::LSHIFT, "LSHIFT"},
+        {TokenType::RSHIFT, "RSHIFT"},
         {TokenType::NOT_BITWISE, "Bitwise NOT"},
         {TokenType::NOT_LOGICAL, "Logical NOT"},
-        {TokenType::INC, "Inc"},
-        {TokenType::DEC, "Dec"},
+        {TokenType::INC, "INC"},
+        {TokenType::DEC, "DEC"},
         {TokenType::END_OF_FILE, "EOF"},
     };
 
@@ -94,7 +104,9 @@ namespace Lexer{
         for(int i=0;i<source.length();){
             char current_char = source[i];
             char next_char = (i != source.length()-1) ? source[i+1] : '\0';
-
+            char next_next_char = (i < source.length()-2) ? source[i+2] : '\0';
+            
+            
             //comments
             if(current_char == '/' && next_char == '/'){ //single line comment
                 scanComment_Single(source, i, line, col);
@@ -102,6 +114,8 @@ namespace Lexer{
             else if(current_char == '/' && next_char == '{'){ //multi line comment
                 scanComment_Multi(source, i, line, col);
             }
+
+
 
             //assembly
             else if(current_char == '%' && next_char == '%'){ //single line assembly
@@ -126,7 +140,9 @@ namespace Lexer{
                 token_list.push_back(current_token);
             }
 
-            //scan for int literal
+
+
+            //scan for literals
             else if(isdigit(current_char)){
                 current_token = scanNumLiteral(source, i, line, col);
                 token_list.push_back(current_token);
@@ -257,7 +273,13 @@ namespace Lexer{
                     advance(source, i, line, col);
                 }
                 else if(next_char == '~'){
-                    current_token = (Token){TokenType::NOT_BITWISE, "!~", 0, 0, line, col};
+                    if(next_next_char == '='){
+                        current_token = (Token){TokenType::NOT_ASSIGN, "!~=", 0, 0, line, col};
+                        advance(source, i, line, col);
+                    }
+                    else{
+                        current_token = (Token){TokenType::NOT_BITWISE, "!~", 0, 0, line, col};
+                    }
                     advance(source, i, line, col);
                 }
                 else{
@@ -272,7 +294,13 @@ namespace Lexer{
                     advance(source, i, line, col);
                 }
                 else if(next_char == '<'){
-                    current_token = (Token){TokenType::LSHIFT, "<<", 0, 0, line, col};
+                    if(next_next_char == '='){
+                        current_token = (Token){TokenType::LSHIFT_ASSIGN, "<<=", 0, 0, line, col};
+                        advance(source, i, line, col);
+                    }
+                    else{
+                        current_token = (Token){TokenType::LSHIFT, "<<", 0, 0, line, col};
+                    }
                     advance(source, i, line, col);
                 }
                 else{
@@ -287,7 +315,13 @@ namespace Lexer{
                     advance(source, i, line, col);
                 }
                 else if(next_char == '>'){
-                    current_token = (Token){TokenType::RSHIFT, ">>", 0, 0, line, col};
+                    if(next_next_char == '='){
+                        current_token = (Token){TokenType::RSHIFT_ASSIGN, ">>=", 0, 0, line, col};
+                        advance(source, i, line, col);
+                    }
+                    else{
+                        current_token = (Token){TokenType::RSHIFT, ">>", 0, 0, line, col};
+                    }
                     advance(source, i, line, col);
                 }
                 else{
@@ -301,6 +335,10 @@ namespace Lexer{
                     current_token = (Token){TokenType::ANDAND, "&&", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
+                else if(next_char == '='){
+                    current_token = (Token){TokenType::AND_ASSIGN, "&=", 0, 0, line, col};
+                    advance(source, i, line, col);
+                }
                 else{
                     current_token = (Token){TokenType::AND, "&", 0, 0, line, col};
                 }
@@ -312,6 +350,10 @@ namespace Lexer{
                     current_token = (Token){TokenType::OROR, "||", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
+                else if(next_char == '='){
+                    current_token = (Token){TokenType::OR_ASSIGN, "|=", 0, 0, line, col};
+                    advance(source, i, line, col);
+                }
                 else{
                     current_token = (Token){TokenType::OR, "|", 0, 0, line, col};
                 }
@@ -321,6 +363,10 @@ namespace Lexer{
             else if(current_char == '^'){
                 if(next_char == '='){
                     current_token = (Token){TokenType::XOR_ASSIGN, "^=", 0, 0, line, col};
+                    advance(source, i, line, col);
+                }
+                else if(next_char == '^'){
+                    current_token = (Token){TokenType::SWAP, "^^", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
                 else{

@@ -7,7 +7,7 @@
 #include <vector>
 
 #include <lexer.hpp>
-
+#include <parser.hpp>
  
 std::string read_file(const std::string& path);
 

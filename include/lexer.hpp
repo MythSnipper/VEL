@@ -7,6 +7,10 @@
 #include <unordered_map>
 
 enum class TokenType{
+    //special, but like more special than the special ones, like dio
+    INVALID_TOKEN,
+    VEL_KEYWORD,
+
     //keywords
     INT8_KEYWORD,
     INT16_KEYWORD,
@@ -17,9 +21,11 @@ enum class TokenType{
     UINT32_KEYWORD,
     UINT64_KEYWORD,
     CHAR_KEYWORD,
-    FLOAT_KEYWORD,
-    DOUBLE_KEYWORD,
+    FLOAT32_KEYWORD,
+    FLOAT64_KEYWORD,
     STRING_KEYWORD,
+    VOID_KEYWORD,
+    
     IF_KEYWORD,
     ELSE_KEYWORD,
     WHILE_KEYWORD,
@@ -44,40 +50,46 @@ enum class TokenType{
 
     
     //operators
-    ASSIGN,     // =
-    ADD_ASSIGN, // +=
-    SUB_ASSIGN, // -=
-    MUL_ASSIGN, // *=
-    DIV_ASSIGN, // /=
-    MOD_ASSIGN, // %=
-    XOR_ASSIGN, // ^=
+    ASSIGN,               // =
+    ADD_ASSIGN,           // +=
+    SUB_ASSIGN,           // -=
+    MUL_ASSIGN,           // *=
+    DIV_ASSIGN,           // /=
+    MOD_ASSIGN,           // %=
+    AND_ASSIGN,           // &=
+    OR_ASSIGN,            // |=
+    XOR_ASSIGN,           // ^=
+    LSHIFT_ASSIGN,        // <<=
+    RSHIFT_ASSIGN,        // >>=
+    NOT_ASSIGN,           // !~=
 
-    ADD,        // +
-    SUB,        // -
-    MUL,        // *
-    DIV,        // /
-    MOD,        // %
+    ADD,                  // +
+    SUB,                  // -
+    MUL,                  // *
+    DIV,                  // /
+    MOD,                  // %
 
-    EQ,         // ==
-    NEQ,        // !=
-    LT,         // <
-    GT,         // >
-    LTE,        // <=
-    GTE,        // >=
+    EQ,                   // ==
+    NEQ,                  // !=
+    LT,                   // <
+    GT,                   // >
+    LTE,                  // <=
+    GTE,                  // >=
 
-    AND,        // &
-    ANDAND,     // &&
-    OR,         // |
-    OROR,       // ||
-    XOR,        // ^
-    LSHIFT,     // <<
-    RSHIFT,     // >>
+    AND,                  // &
+    ANDAND,               // &&
+    OR,                   // |
+    OROR,                 // ||
+    XOR,                  // ^
+    LSHIFT,               // <<
+    RSHIFT,               // >>
+    SWAP,                 // ^^
 
     //prefix
-    NOT_LOGICAL,        // !
-    NOT_BITWISE,        // !~
-    INC,        // ++
-    DEC,        // --
+    NOT_LOGICAL,          // !
+    NOT_BITWISE,          // !~
+    INC,                  // ++
+    DEC,                  // --
 
     //special
     END_OF_FILE,
