@@ -1,39 +1,4 @@
 
 void main(){
-    int8 variable = 5;
-    int32 hello = -299;
-    char character1 = '\n';
-    char character2 = 'E';
-    string yessir = "EEEEEEEEEEEEF";
-    uint32 dion = 2002;
- 
-    //comment 1
-    /{
-        multiline comment so peak
-        vel
-    }/
-    %%this is vel
-    %{
-        multiline assembly so peak
-        vel
-    }%
-    a >>= 2
-    a > 2
-    a & 2
-    a | 2
-    a ^ 2
-    a <<= 2
-    a >> 2
-    a && 2
-    a || 2
-    a |= 2
-    a ^= 2
-    a += 2
-    a -= 2
-    a *= 2
-    a /= 2
-    a %= 2
-    a++
-    a--
-    a ^^ b;
+
 }

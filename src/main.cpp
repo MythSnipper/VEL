@@ -1,5 +1,7 @@
 #include <main.hpp>
 
+//#define LEXER_DEBUG
+#define PARSER_DEBUG
 
 int main(int argc, char* argv[]){
 
@@ -39,13 +41,20 @@ int main(int argc, char* argv[]){
 
 
     //Lexer
+    std::cout << "Lexer:\n";
+
     std::vector<Token> tokens = Lexer::tokenize(source);
-    std::cout << "Tokens: \n";
-    for(Token t : tokens){
-        std::cout << Lexer::KeywordToString(t.type) << '|' << t.text << '|' << t.value << ' ' << t.valuef << "       " << t.line << ' ' << t.col << '\n';
-    }
+
+    #ifdef LEXER_DEBUG
+        std::cout << "Tokens: \n";
+        for(Token t : tokens){
+            std::cout << Lexer::KeywordToString(t.type) << '|' << t.text << '|' << t.value << ' ' << t.valuef << "       " << t.line << ' ' << t.col << '\n';
+        }
+    #endif
 
     //Parser
+    std::cout << "Parser:\n";
+
     Program AST = constructAST(tokens);
 
 

@@ -101,7 +101,7 @@ namespace Lexer{
         int line = 1;
         int col = 1;
 
-        for(int i=0;i<source.length();){
+        for(uint32_t i=0;i<source.length();){
             char current_char = source[i];
             char next_char = (i != source.length()-1) ? source[i+1] : '\0';
             char next_next_char = (i < source.length()-2) ? source[i+2] : '\0';
@@ -385,7 +385,7 @@ namespace Lexer{
             //invalid characters
             else{
                 std::cout << "Invalid character: " << current_char << " ";
-                if(next_char != NULL){
+                if(next_char != '\0'){
                     std::cout << next_char;
                 }
                 else{
@@ -399,7 +399,7 @@ namespace Lexer{
         token_list.push_back({TokenType::END_OF_FILE, "\0", -1, -1, line, col});
         return token_list;
     }
-    void advance(const std::string& source, int& i, int& line, int& col){
+    void advance(const std::string& source, uint32_t& i, int& line, int& col){
         if(source[i] == '\n'){
             col = 1;
             line++;
@@ -409,7 +409,7 @@ namespace Lexer{
         }
         i++;
     }
-    Token scanKeywordOrIdentifier(const std::string& source, int& i, int& line, int& col){
+    Token scanKeywordOrIdentifier(const std::string& source, uint32_t& i, int& line, int& col){
         std::string current_text;
 
         int startline = line;
@@ -426,21 +426,27 @@ namespace Lexer{
             }
             advance(source, i, line, col);
         }
-
+        if(current_text.empty()) {
+            // nothing was scanned, return INVALID
+            return {TokenType::INVALID_TOKEN, "INVALID", 0, 0, startline, startcol};
+        }
+    
+        TokenType type = checkKeywordOrIdentifier(current_text);
+        return {type, current_text, 0, 0, startline, startcol};
     }
     TokenType checkKeywordOrIdentifier(const std::string& text){
         return (map_kwid.find(text) != map_kwid.end()) ? map_kwid[text] : TokenType::IDENTIFIER;
 
-
     }
     std::string KeywordToString(const TokenType& type){
-        
+        if((map_idkw.find(type) == map_idkw.end())){
+            std::cout << "DEBUG\n" << (int32_t)type << "\n";
+        }
         return (map_idkw.find(type) != map_idkw.end()) ? map_idkw[type] : "NUHUHTYPE";
-
     }
     
     
-    Token scanNumLiteral(const std::string& source, int& i, int& line, int& col){
+    Token scanNumLiteral(const std::string& source, uint32_t& i, int& line, int& col){
         std::string current_text;
         std::string current_text_no_underscore;
 
@@ -479,8 +485,18 @@ namespace Lexer{
             }
             advance(source, i, line, col);
         }
+        if(current_text.empty()){
+            return {TokenType::INVALID_TOKEN, "INVALID", 0, 0, startline, startcol};
+        }
+        if(isFloat){
+            double value = (current_text_no_underscore.empty()) ? 0.0 : std::stod(current_text_no_underscore);
+            return {TokenType::FLOAT_LITERAL, current_text, 0, value, startline, startcol};
+        } else {
+            int64_t value = (current_text_no_underscore.empty()) ? 0 : std::stoll(current_text_no_underscore);
+            return {TokenType::INT_LITERAL, current_text, value, 0, startline, startcol};
+        }
     }
-    Token scanStringLiteral(const std::string& source, int& i, int& line, int& col){
+    Token scanStringLiteral(const std::string& source, uint32_t& i, int& line, int& col){
         advance(source, i, line, col);
         int startLine = line;
         int startCol = col;
@@ -519,7 +535,7 @@ namespace Lexer{
     
         return {TokenType::STRING_LITERAL, currentText, 0, 0, startLine, startCol};
     }
-    Token scanCharLiteral(const std::string& source, int& i, int& line, int& col){
+    Token scanCharLiteral(const std::string& source, uint32_t& i, int& line, int& col){
         advance(source, i, line, col);
         int startLine = line;
         int startCol = col;
@@ -566,7 +582,7 @@ namespace Lexer{
     
 
 
-    void scanComment_Single(const std::string& source, int& i, int& line, int& col){
+    void scanComment_Single(const std::string& source, uint32_t& i, int& line, int& col){
         advance(source, i, line, col);
         advance(source, i, line, col);
         for(;i<source.length()-1;){
@@ -580,7 +596,7 @@ namespace Lexer{
             advance(source, i, line, col);
         }
     }
-    void scanComment_Multi(const std::string& source, int& i, int& line, int& col){
+    void scanComment_Multi(const std::string& source, uint32_t& i, int& line, int& col){
         advance(source, i, line, col);
         advance(source, i, line, col);
         for(;i<source.length()-1;){
@@ -592,7 +608,7 @@ namespace Lexer{
             advance(source, i, line, col);
         }
     }
-    Token scanAssembly_Single(const std::string& source, int& i, int& line, int& col){
+    Token scanAssembly_Single(const std::string& source, uint32_t& i, int& line, int& col){
         advance(source, i, line, col);
         advance(source, i, line, col);
         std::string current_text;
@@ -614,7 +630,7 @@ namespace Lexer{
         }
         return {TokenType::ASSEMBLY, current_text + "\n", 0, 0, line, col};
     }
-    Token scanAssembly_Multi(const std::string& source, int& i, int& line, int& col){
+    Token scanAssembly_Multi(const std::string& source, uint32_t& i, int& line, int& col){
         advance(source, i, line, col);
         advance(source, i, line, col);
         std::string current_text;

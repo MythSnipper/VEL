@@ -1,6 +1,8 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
+#include <cstdint>
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -114,9 +116,9 @@ struct ASTNode{
     virtual ~ASTNode(){};
 };
 
-struct Declaration : ASTNode{};
-struct Expression : ASTNode{};
-struct Statement : ASTNode{};
+struct Declaration : virtual ASTNode{};
+struct Expression : virtual ASTNode{};
+struct Statement : virtual ASTNode{};
 
 
 //-----------------------------------------------------------------------------------------------------------------------
@@ -131,6 +133,10 @@ struct Literal : Expression{
 
 struct Identifier : Expression{
     std::string Text;
+    Identifier(){};
+    Identifier(const std::string& text){
+        Text = text;
+    }
 };
 
 struct Call : Expression{
@@ -162,7 +168,7 @@ struct AssignmentOp : Expression{
 //-----------------------------------------------------------------------------------------------------------------------
 
 struct Program : ASTNode{
-    std::vector<std::unique_ptr<Declaration>> TopLevel;
+    std::vector<std::unique_ptr<ASTNode>> TopLevel;
 };
 
 struct Block : Statement{
@@ -217,6 +223,10 @@ struct For : Statement{
 
 struct Assembly : Statement, Declaration{
     std::string Text;
+    Assembly(){};
+    Assembly(const std::string& text){
+        Text = text;
+    }
 };
 
 struct Empty : Statement{
@@ -228,10 +238,20 @@ struct Empty : Statement{
 
 Program constructAST(std::vector<Token> tokenList);
 Token getToken(const std::vector<Token>& tokenList, const int& index, const int& offset = 0);
-void advance(const std::vector<Token>& tokenList, int& index, const int& numTokens);
+void advance(const std::vector<Token>&, int& index, const int& numTokens);
 bool isType(const Token& token, const TokenType& type);
 bool isTypename(const Token& token);
 BuiltinType convertType(const TokenType& type);
+
+std::unique_ptr<Function> parseFunction(std::vector<Token> tokenList, int& index);
+std::unique_ptr<Assembly> parseAssembly(std::vector<Token> tokenList, int& index);
+std::unique_ptr<VariableDeclaration> parseVariableDeclaration(std::vector<Token> tokenList, int& index);
+std::unique_ptr<Block> parseBlock(std::vector<Token> tokenList, int& index);
+std::unique_ptr<Expression> parseExpression(std::vector<Token> tokenList, int& index);
+
+
+
+
 
 
 #endif
