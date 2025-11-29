@@ -1,6 +1,6 @@
 #include <parser.hpp>
 
-Program constructAST(std::vector<Token> tokenList){
+Program constructAST(const std::vector<Token>& tokenList){
     Program program;
     int index = 0;
 
@@ -23,8 +23,8 @@ Program constructAST(std::vector<Token> tokenList){
             }
             else{
                 //Variable Declaration
-                std::unique_ptr<VariableDeclaration> VariableDeclarationNode = parseVariableDeclaration(tokenList, index);
-                program.TopLevel.push_back(std::move(VariableDeclarationNode));
+                std::unique_ptr<GlobalVariableDeclaration> GlobalVariableDeclarationNode = parseGlobalVariableDeclaration(tokenList, index);
+                program.TopLevel.push_back(std::move(GlobalVariableDeclarationNode));
             }
         }
         else{
@@ -106,7 +106,7 @@ BuiltinType convertType(const TokenType& type){
     }
 }
 
-std::unique_ptr<Assembly> parseAssembly(std::vector<Token> tokenList, int& index){
+std::unique_ptr<Assembly> parseAssembly(const std::vector<Token>& tokenList, int& index){
     std::unique_ptr<Assembly> AssemblyNode = std::make_unique<Assembly>(Assembly{});
     AssemblyNode->Text = getToken(tokenList, index).text;
 
@@ -116,7 +116,7 @@ std::unique_ptr<Assembly> parseAssembly(std::vector<Token> tokenList, int& index
     return AssemblyNode;
 }
 
-std::unique_ptr<Function> parseFunction(std::vector<Token> tokenList, int& index){
+std::unique_ptr<Function> parseFunction(const std::vector<Token>& tokenList, int& index){
     std::unique_ptr<Function> FunctionNode = std::make_unique<Function>(Function{});
     FunctionNode->ReturnType = Type{true, convertType(getToken(tokenList, index).type), ""}; //First token is the return type
     
@@ -175,7 +175,33 @@ std::unique_ptr<Function> parseFunction(std::vector<Token> tokenList, int& index
     return FunctionNode;
 }
 
-std::unique_ptr<VariableDeclaration> parseVariableDeclaration(std::vector<Token> tokenList, int& index){
+std::unique_ptr<GlobalVariableDeclaration> parseGlobalVariableDeclaration(const std::vector<Token>& tokenList, int& index){
+    std::unique_ptr<GlobalVariableDeclaration> GlobalVariableDeclarationNode = std::make_unique<GlobalVariableDeclaration>(GlobalVariableDeclaration{});
+    GlobalVariableDeclarationNode->Typename = Type{true, convertType(getToken(tokenList, index).type), ""}; //First token is the return type
+    
+    GlobalVariableDeclarationNode->Id = std::make_unique<Identifier>(Identifier{getToken(tokenList, index, 1).text}); //Second token is the function identifier
+    
+    advance(tokenList, index, 2); //skip typename, identifier
+
+    if(getToken(tokenList, index).type == TokenType::ASSIGN){
+        advance(tokenList, index, 1); //skip assignment operator
+        GlobalVariableDeclarationNode->Expr = parseExpression(tokenList, index); //parse expression till ;
+    }
+    else if(getToken(tokenList, index).type == TokenType::SEMICOLON){
+        advance(tokenList, index, 1); //skip semicolon
+        GlobalVariableDeclarationNode->Expr = nullptr;
+    }
+    else{
+        std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "\n";
+        throw std::runtime_error("Invalid token in parseGlobalVariableDeclaration: Expected assignment operator or semicolon");
+    }
+
+    std::cout << "\tGlobalVariableDeclaration parsed\nTypename: " << (int)GlobalVariableDeclarationNode->Typename.builtinType << "\nId: " << GlobalVariableDeclarationNode->Id->Text << "\n";
+
+    return GlobalVariableDeclarationNode;
+}
+
+std::unique_ptr<VariableDeclaration> parseVariableDeclaration(const std::vector<Token>& tokenList, int& index){
     std::unique_ptr<VariableDeclaration> VariableDeclarationNode = std::make_unique<VariableDeclaration>(VariableDeclaration{});
     VariableDeclarationNode->Typename = Type{true, convertType(getToken(tokenList, index).type), ""}; //First token is the return type
     
@@ -193,7 +219,7 @@ std::unique_ptr<VariableDeclaration> parseVariableDeclaration(std::vector<Token>
     }
     else{
         std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "\n";
-        throw std::runtime_error("Invalid token in parseVariableDeclaration");
+        throw std::runtime_error("Invalid token in parseVariableDeclaration: Expected assignment operator or semicolon");
     }
 
     std::cout << "\tVariableDeclaration parsed\nTypename: " << (int)VariableDeclarationNode->Typename.builtinType << "\nId: " << VariableDeclarationNode->Id->Text << "\n";
@@ -201,12 +227,106 @@ std::unique_ptr<VariableDeclaration> parseVariableDeclaration(std::vector<Token>
     return VariableDeclarationNode;
 }
 
-std::unique_ptr<Block> parseBlock(std::vector<Token> tokenList, int& index){
+std::unique_ptr<Block> parseBlock(const std::vector<Token>& tokenList, int& index){
     std::unique_ptr<Block> BlockNode = std::make_unique<Block>(Block{});
     BlockNode->Statements = std::vector<std::unique_ptr<Statement>>();
     
+    //skip LBRACE
+    if(!isType(getToken(tokenList, index), TokenType::LBRACE)){ //Check if the token is LBRACE
+        std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+        throw std::runtime_error("Invalid token in parseBlock: Expected Left Bracket");
+    }
+    advance(tokenList, index, 1); //skip LBRACE
+
+    //Add statements
+    while(!isType(getToken(tokenList, index), TokenType::RBRACE) && !isType(getToken(tokenList, index), TokenType::END_OF_FILE)){ //while current token is not }  and not EOF
+        std::unique_ptr<Statement> statement = parseStatement(tokenList, index);
+        BlockNode->Statements.push_back(std::move(statement));
+    }
+    //if while loop exited with EOF, error because no closing bracket
+    if(isType(getToken(tokenList, index), TokenType::END_OF_FILE)){
+        std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+        throw std::runtime_error("Invalid token in parseBlock: Expected Right Bracket");
+    }
+
+    advance(tokenList, index, 1); //skip RBRACE
+
     return BlockNode;
 }
-std::unique_ptr<Expression> parseExpression(std::vector<Token> tokenList, int& index){
-    return nullptr;
+
+std::unique_ptr<Statement> parseStatement(const std::vector<Token>& tokenList, int& index){
+    //Parse statement
+    Token currentToken = getToken(tokenList, index);
+
+    if(isType(currentToken, TokenType::ASSEMBLY)){ //Parse Assembly
+        return parseAssembly(tokenList, index);
+    }
+    if(isType(currentToken, TokenType::LBRACE)){ //Parse Block
+        return parseBlock(tokenList, index);
+    }
+    if(isType(currentToken, TokenType::SEMICOLON)){ //Parse Empty
+        advance(tokenList, index, 1); //skip semicolon
+        return std::make_unique<Empty>();
+    }
+    if(isType(currentToken, TokenType::RETURN_KEYWORD)){ //Parse Return
+        return parseReturn(tokenList, index);
+    }
+    if(isType(currentToken, TokenType::IF_KEYWORD)){ //Parse If
+        return parseIf(tokenList, index);
+    }
+    if(isType(currentToken, TokenType::WHILE_KEYWORD)){ //Parse While
+        return parseWhile(tokenList, index);
+    }
+    if(isType(currentToken, TokenType::FOR_KEYWORD)){ //Parse For
+        return parseFor(tokenList, index);
+    }
+
+    //Parse Expression Statement is nothing matches
+    return parseExpressionStatement(tokenList, index);
+
+}
+
+std::unique_ptr<Return> parseReturn(const std::vector<Token>& tokenList, int& index){
+    std::unique_ptr<Return> returnNode = std::make_unique<Return>(Return{});
+    advance(tokenList, index, 1); //skip return keyword
+    returnNode->Expr = parseExpression(tokenList, index);
+
+    //skip semicolon
+    if(!isType(getToken(tokenList, index), TokenType::SEMICOLON)){ //Check if the token is SEMICOLON
+        std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+        throw std::runtime_error("Invalid token in parseReturn: Expected Semicolon");
+    }
+    advance(tokenList, index, 1); //skip SEMICOLON
+
+    return returnNode;
+}
+
+std::unique_ptr<If> parseIf(const std::vector<Token>& tokenList, int& index){
+    std::unique_ptr<If> ifNode = std::make_unique<If>(If{});
+    return ifNode;
+}
+
+std::unique_ptr<While> parseWhile(const std::vector<Token>& tokenList, int& index){
+    std::unique_ptr<While> whileNode = std::make_unique<While>(While{});
+    return whileNode;
+}
+
+std::unique_ptr<For> parseFor(const std::vector<Token>& tokenList, int& index){
+    std::unique_ptr<For> forNode = std::make_unique<For>(For{});
+    return forNode;
+}
+
+std::unique_ptr<ExpressionStatement> parseExpressionStatement(const std::vector<Token>& tokenList, int& index){
+    std::unique_ptr<ExpressionStatement> expressionStatementNode = std::make_unique<ExpressionStatement>(ExpressionStatement{});
+    return expressionStatementNode;
+}
+
+
+
+
+
+
+std::unique_ptr<Expression> parseExpression(const std::vector<Token>& tokenList, int& index){
+    std::unique_ptr<Expression> expressionNode = std::make_unique<Expression>(Expression{});
+    return expressionNode;
 }

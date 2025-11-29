@@ -396,7 +396,7 @@ namespace Lexer{
             }
         }
 
-        token_list.push_back({TokenType::END_OF_FILE, "\0", -1, -1, line, col});
+        token_list.push_back({TokenType::END_OF_FILE, "EOF!!!", -1, -1, line, col});
         return token_list;
     }
     void advance(const std::string& source, uint32_t& i, int& line, int& col){
