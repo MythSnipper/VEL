@@ -259,6 +259,7 @@ std::unique_ptr<Return> parseReturn(const std::vector<Token>& tokenList, int& in
 std::unique_ptr<If> parseIf(const std::vector<Token>& tokenList, int& index);
 std::unique_ptr<While> parseWhile(const std::vector<Token>& tokenList, int& index);
 std::unique_ptr<For> parseFor(const std::vector<Token>& tokenList, int& index);
+std::unique_ptr<ExpressionStatement> parseExpressionStatement(const std::vector<Token>& tokenList, int& index);
 std::unique_ptr<Expression> parseExpression(const std::vector<Token>& tokenList, int& index);
 
 

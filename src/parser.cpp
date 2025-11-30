@@ -186,6 +186,12 @@ std::unique_ptr<GlobalVariableDeclaration> parseGlobalVariableDeclaration(const 
     if(getToken(tokenList, index).type == TokenType::ASSIGN){
         advance(tokenList, index, 1); //skip assignment operator
         GlobalVariableDeclarationNode->Expr = parseExpression(tokenList, index); //parse expression till ;
+        //skip Semicolon
+        if(!isType(getToken(tokenList, index), TokenType::SEMICOLON)){ //Check if the token is SEMICOLON
+            std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+            throw std::runtime_error("Invalid token in parseGlobalVariableDeclaration: Expected Semicolon");
+        }
+        advance(tokenList, index, 1); //skip SEMICOLON
     }
     else if(getToken(tokenList, index).type == TokenType::SEMICOLON){
         advance(tokenList, index, 1); //skip semicolon
@@ -212,6 +218,12 @@ std::unique_ptr<VariableDeclaration> parseVariableDeclaration(const std::vector<
     if(getToken(tokenList, index).type == TokenType::ASSIGN){
         advance(tokenList, index, 1); //skip assignment operator
         VariableDeclarationNode->Expr = parseExpression(tokenList, index); //parse expression till ;
+        //skip Semicolon
+        if(!isType(getToken(tokenList, index), TokenType::SEMICOLON)){ //Check if the token is Semicolon
+            std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+            throw std::runtime_error("Invalid token in parseVariableDeclaration: Expected Semicolon");
+        }
+        advance(tokenList, index, 1); //skip Semicolon
     }
     else if(getToken(tokenList, index).type == TokenType::SEMICOLON){
         advance(tokenList, index, 1); //skip semicolon
@@ -325,10 +337,10 @@ std::unique_ptr<If> parseIf(const std::vector<Token>& tokenList, int& index){
     //parse the body
     ifNode->Body = parseStatement(tokenList, index);
 
-    //Parse elseifs
+    //parse elseifs
     while(isType(getToken(tokenList, index), TokenType::ELSE_KEYWORD) && isType(getToken(tokenList, index, 1), TokenType::IF_KEYWORD)){
-        std::unique_ptr<ElseIf> elseIfNode = std::make_unique<ElseIf>(ElseIf{});
-        //skip the else if
+        ElseIf elseIfNode;
+        //skip the else and if keywords
         advance(tokenList, index, 2);
 
         //skip LPAREN
@@ -339,7 +351,7 @@ std::unique_ptr<If> parseIf(const std::vector<Token>& tokenList, int& index){
         advance(tokenList, index, 1); //skip LPAREN
 
         //parse the condition
-        elseIfNode->Condition = parseExpression(tokenList, index);
+        elseIfNode.Condition = parseExpression(tokenList, index);
         
         //skip RPAREN
         if(!isType(getToken(tokenList, index), TokenType::RPAREN)){ //Check if the token is RPAREN
@@ -349,37 +361,92 @@ std::unique_ptr<If> parseIf(const std::vector<Token>& tokenList, int& index){
         advance(tokenList, index, 1); //skip RPAREN
 
         //parse the body
-        elseIfNode->Body = parseStatement(tokenList, index);
+        elseIfNode.Body = parseStatement(tokenList, index);
+
+        //add else if to the list
+        ifNode->ElseIfs.push_back(std::move(elseIfNode));
     }
 
+    //parse else
+    if(isType(getToken(tokenList, index), TokenType::ELSE_KEYWORD)){
+        std::unique_ptr<Statement> elseNode = std::make_unique<Statement>(Statement{});
+        advance(tokenList, index, 1); //skip else keyword
 
+        //parse the body
+        elseNode = parseStatement(tokenList, index);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        //add to If
+        ifNode->Else = std::move(elseNode);
+    }
 
     return ifNode;
 }
 
 std::unique_ptr<While> parseWhile(const std::vector<Token>& tokenList, int& index){
     std::unique_ptr<While> whileNode = std::make_unique<While>(While{});
+    advance(tokenList, index, 1); //skip while keyword
+
+    //skip LPAREN
+    if(!isType(getToken(tokenList, index), TokenType::LPAREN)){ //Check if the token is LPAREN
+        std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+        throw std::runtime_error("Invalid token in parseWhile: Expected Left Parenthesis");
+    }
+    advance(tokenList, index, 1); //skip LPAREN
+
+    //parse the condition
+    whileNode->Condition = parseExpression(tokenList, index);
+    
+    //skip RPAREN
+    if(!isType(getToken(tokenList, index), TokenType::RPAREN)){ //Check if the token is RPAREN
+        std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+        throw std::runtime_error("Invalid token in parseWhile: Expected Right Parenthesis");
+    }
+    advance(tokenList, index, 1); //skip RPAREN
+
+    //parse the body
+    whileNode->Body = parseStatement(tokenList, index);
+
     return whileNode;
 }
 
 std::unique_ptr<For> parseFor(const std::vector<Token>& tokenList, int& index){
     std::unique_ptr<For> forNode = std::make_unique<For>(For{});
+    //skip LPAREN
+    if(!isType(getToken(tokenList, index), TokenType::LPAREN)){ //Check if the token is LPAREN
+        std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+        throw std::runtime_error("Invalid token in parseWhile: Expected Left Parenthesis");
+    }
+    advance(tokenList, index, 1); //skip LPAREN
+
+    //parse the insides
+    if(isTypename(getToken(tokenList, index)) && isType(getToken(tokenList, index, 1), TokenType::IDENTIFIER)){ //Variable Declaration
+        forNode->Initializer = parseVariableDeclaration(tokenList, index); //auto consumes semicolon
+    }
+    else{
+        
+    }
+    
+    //skip RPAREN
+    if(!isType(getToken(tokenList, index), TokenType::RPAREN)){ //Check if the token is RPAREN
+        std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+        throw std::runtime_error("Invalid token in parseWhile: Expected Right Parenthesis");
+    }
+    advance(tokenList, index, 1); //skip RPAREN
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
     return forNode;
 }
 
@@ -387,11 +454,6 @@ std::unique_ptr<ExpressionStatement> parseExpressionStatement(const std::vector<
     std::unique_ptr<ExpressionStatement> expressionStatementNode = std::make_unique<ExpressionStatement>(ExpressionStatement{});
     return expressionStatementNode;
 }
-
-
-
-
-
 
 std::unique_ptr<Expression> parseExpression(const std::vector<Token>& tokenList, int& index){
     std::unique_ptr<Expression> expressionNode = std::make_unique<Expression>(Expression{});
