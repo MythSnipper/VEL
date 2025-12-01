@@ -185,7 +185,7 @@ struct Function : Declaration{
     Type ReturnType;
     std::unique_ptr<Identifier> Id;
     std::vector<std::pair<Type, std::unique_ptr<Identifier>>> Parameters; //Typename, Identifier
-    std::unique_ptr<Block> Body;
+    std::unique_ptr<Statement> Body;
 };
 //-----------------------------------------------------------------------------------------------------------------------
 
@@ -252,7 +252,7 @@ BuiltinType convertType(const TokenType& type);
 std::unique_ptr<Function> parseFunction(const std::vector<Token>& tokenList, int& index);
 std::unique_ptr<Assembly> parseAssembly(const std::vector<Token>& tokenList, int& index);
 std::unique_ptr<GlobalVariableDeclaration> parseGlobalVariableDeclaration(const std::vector<Token>& tokenList, int& index);
-std::unique_ptr<VariableDeclaration> parseVariableDeclaration(const std::vector<Token>& tokenList, int& index);
+std::unique_ptr<VariableDeclaration> parseVariableDeclaration(const std::vector<Token>& tokenList, int& index, const TokenType& stopType = TokenType::SEMICOLON);
 std::unique_ptr<Block> parseBlock(const std::vector<Token>& tokenList, int& index);
 std::unique_ptr<Statement> parseStatement(const std::vector<Token>& tokenList, int& index);
 std::unique_ptr<Return> parseReturn(const std::vector<Token>& tokenList, int& index);

@@ -162,13 +162,7 @@ std::unique_ptr<Function> parseFunction(const std::vector<Token>& tokenList, int
     advance(tokenList, index, 1); //skip RPAREN
 
     //Function body
-    if(isType(getToken(tokenList, index), TokenType::LBRACE)){ //Parse block
-        FunctionNode->Body = parseBlock(tokenList, index);
-    }
-    else{
-        std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-        throw std::runtime_error("Invalid token in parseFunction: Expected Left Brace");
-    }
+    FunctionNode->Body = parseStatement(tokenList, index);
 
     std::cout << "\tFunction parsed\nReturnType: " << (int)FunctionNode->ReturnType.builtinType << "\nId: " << FunctionNode->Id->Text << "\n";
 
@@ -207,7 +201,7 @@ std::unique_ptr<GlobalVariableDeclaration> parseGlobalVariableDeclaration(const 
     return GlobalVariableDeclarationNode;
 }
 
-std::unique_ptr<VariableDeclaration> parseVariableDeclaration(const std::vector<Token>& tokenList, int& index){
+std::unique_ptr<VariableDeclaration> parseVariableDeclaration(const std::vector<Token>& tokenList, int& index, const TokenType& stopType){
     std::unique_ptr<VariableDeclaration> VariableDeclarationNode = std::make_unique<VariableDeclaration>(VariableDeclaration{});
     VariableDeclarationNode->Typename = Type{true, convertType(getToken(tokenList, index).type), ""}; //First token is the return type
     
