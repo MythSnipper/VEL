@@ -1,60 +1,60 @@
 #include <parser.hpp>
 
-std::unordered_map<TokenType, uint8_t> binding_power_table = {
+std::unordered_map<TokenType, int> binding_power_table = {
 
-    {TokenType::MUL, 160},                 // *
-    {TokenType::DIV, 160},                 // /
-    {TokenType::MOD, 160},                 // %
+    {TokenType::MUL, 12000000},                 // *
+    {TokenType::DIV, 12000000},                 // /
+    {TokenType::MOD, 12000000},                 // %
 
-    {TokenType::ADD, 140},                 // +
-    {TokenType::SUB, 140},                 // -
+    {TokenType::ADD, 11000000},                 // +
+    {TokenType::SUB, 11000000},                 // -
 
-    {TokenType::LSHIFT, 120},              // <<
-    {TokenType::RSHIFT, 120},              // >>
+    {TokenType::LSHIFT, 10000000},              // <<
+    {TokenType::RSHIFT, 10000000},              // >>
 
-    {TokenType::LT, 100},                  // <
-    {TokenType::GT, 100},                  // >
-    {TokenType::LTE, 100},                 // <=
-    {TokenType::GTE, 100},                 // >=
+    {TokenType::LT, 9000000},                  // <
+    {TokenType::GT, 9000000},                  // >
+    {TokenType::LTE, 9000000},                 // <=
+    {TokenType::GTE, 9000000},                 // >=
 
-    {TokenType::EQ, 50},                   // ==
-    {TokenType::NEQ, 50},                  // != 
+    {TokenType::EQ, 8000000},                   // ==
+    {TokenType::NEQ, 8000000},                  // != 
 
-    {TokenType::AND, 38},                  // &
-    {TokenType::XOR, 36},                  // ^
-    {TokenType::OR, 34},                   // |
+    {TokenType::AND, 7000000},                  // &
+    {TokenType::XOR, 6000000},                  // ^
+    {TokenType::OR, 5000000},                   // |
     
-    {TokenType::ANDAND, 32},               // &&
-    {TokenType::OROR, 30},                 // ||
-    {TokenType::SWAP, 20},                 // ^^
+    {TokenType::ANDAND, 4000000},               // &&
+    {TokenType::OROR, 3000000},                 // ||
+    {TokenType::SWAP, 2000000},                 // ^^
 
-    {TokenType::ASSIGN, 10},               // =
-    {TokenType::ADD_ASSIGN, 10},           // +=
-    {TokenType::SUB_ASSIGN, 10},           // -=
-    {TokenType::MUL_ASSIGN, 10},           // *=
-    {TokenType::DIV_ASSIGN, 10},           // /=
-    {TokenType::MOD_ASSIGN, 10},           // %=
-    {TokenType::AND_ASSIGN, 10},           // &=
-    {TokenType::OR_ASSIGN, 10},            // |=
-    {TokenType::XOR_ASSIGN, 10},           // ^=
-    {TokenType::LSHIFT_ASSIGN, 10},        // <<=
-    {TokenType::RSHIFT_ASSIGN, 10},        // >>=
-    {TokenType::NOT_ASSIGN, 10},           // !~=
+    {TokenType::ASSIGN, 1000000},               // =
+    {TokenType::ADD_ASSIGN, 1000000},           // +=
+    {TokenType::SUB_ASSIGN, 1000000},           // -=
+    {TokenType::MUL_ASSIGN, 1000000},           // *=
+    {TokenType::DIV_ASSIGN, 1000000},           // /=
+    {TokenType::MOD_ASSIGN, 1000000},           // %=
+    {TokenType::AND_ASSIGN, 1000000},           // &=
+    {TokenType::OR_ASSIGN, 1000000},            // |=
+    {TokenType::XOR_ASSIGN, 1000000},           // ^=
+    {TokenType::LSHIFT_ASSIGN, 1000000},        // <<=
+    {TokenType::RSHIFT_ASSIGN, 1000000},        // >>=
+    {TokenType::NOT_ASSIGN, 1000000},           // !~=
     
 };
-std::unordered_map<TokenType, uint8_t> binding_power_table_postfix = {
+std::unordered_map<TokenType, int> binding_power_table_postfix = {
     //POSTFIX
-    {TokenType::INC, 200},                 // ++
-    {TokenType::DEC, 200},                 // -- 
+    {TokenType::INC, 13000000},                 // ++
+    {TokenType::DEC, 13000000},                 // -- 
 };
-std::unordered_map<TokenType, uint8_t> binding_power_table_prefix = {
+std::unordered_map<TokenType, int> binding_power_table_prefix = {
     //PREFIX
-    {TokenType::NOT_LOGICAL, 220},         // !
-    {TokenType::NOT_BITWISE, 220},         // !~
-    {TokenType::INC, 220},                 // ++
-    {TokenType::DEC, 220},                 // --
-    {TokenType::ADD, 220},                 // +
-    {TokenType::SUB, 220},                 // -
+    {TokenType::NOT_LOGICAL, 14000000},         // !
+    {TokenType::NOT_BITWISE, 14000000},         // !~
+    {TokenType::INC, 14000000},                 // ++
+    {TokenType::DEC, 14000000},                 // --
+    {TokenType::ADD, 14000000},                 // +
+    {TokenType::SUB, 14000000},                 // -
 
 };
 
@@ -545,37 +545,50 @@ namespace Parser{
         return expressionStatementNode;
     }
 
-    uint8_t getPrecedence(const TokenType& type, const uint8_t& mode){ // 0 for binary, 1 for prefix, 2 for postfix
+    int getPrecedence(const TokenType& type, const uint8_t& mode){ // 0 for binary, 1 for prefix, 2 for postfix
         if(mode == 1){
             if(binding_power_table_prefix.find(type) != binding_power_table_prefix.end()){ //found
                 return binding_power_table_prefix.at(type);
             }
-            else{
-                return -1;
-            }
         }
-        if(mode == 2){
+        else if(mode == 2){
             if(binding_power_table_postfix.find(type) != binding_power_table_postfix.end()){ //found
                 return binding_power_table_postfix.at(type);
             }
-            else{
-                return -1;
-            }
         }
-        if(binding_power_table.find(type) != binding_power_table.end()){ //found
-            return binding_power_table.at(type);
+        else{
+            if(binding_power_table.find(type) != binding_power_table.end()){ //found
+                return binding_power_table.at(type);
+            }
         }
         return -1;
     }
 
-
     std::unique_ptr<Expression> parseExpression(const std::vector<Token>& tokenList, int& index, uint8_t minPrecedence){
-        std::unique_ptr<Expression> expressionNode = std::make_unique<Expression>(Expression{});
+        std::unique_ptr<Expression> left = parsePrefixExpression(tokenList, index);
 
+        left = parsePostfixExpression(tokenList, index, std::move(left));
+        while(true){
+            Token currentToken = getToken(tokenList, index);
+            int precedence = getPrecedence(currentToken.type);
+            if(precedence < minPrecedence){
+                break;
+            }
+            int leftPrecedence = precedence;
+            int rightPrecedence = leftPrecedence + 1;
+            
+            advance(tokenList, index, 1);
+            std::unique_ptr<Expression> right = parseExpression(tokenList, index, rightPrecedence);
 
+            //make left a binary node
+            std::unique_ptr<BinaryOp> binaryNode = std::make_unique<BinaryOp>(BinaryOp{});
+            binaryNode->Left = std::move(left);
+            binaryNode->Op = toBinaryOperator(currentToken.type);
+            binaryNode->Right = std::move(right);
 
-
-        return expressionNode;
+            left = std::move(binaryNode);
+        };
+        return left;
     }
 
     std::unique_ptr<Expression> parsePrefixExpression(const std::vector<Token>& tokenList, int& index){
@@ -606,7 +619,7 @@ namespace Parser{
 
         if(getPrecedence(currentToken.type, 1) != -1){ //if it is a prefix operator
             advance(tokenList, index, 1);
-            int precedence = getPrecedence(currentToken.type, true);
+            uint8_t precedence = getPrecedence(currentToken.type, true);
             std::unique_ptr<PrefixOp> prefixNode = std::make_unique<PrefixOp>(PrefixOp{});
             prefixNode->Op = toPrefixOperator(currentToken.type);
             prefixNode->Expr = parseExpression(tokenList, index, precedence);
@@ -623,36 +636,55 @@ namespace Parser{
         while(true){
             Token currentToken = getToken(tokenList, index);
 
-            if(isType(currentToken, TokenType::LPAREN)){
-                if(auto p = dynamic_cast<Identifier*>(left.get())){
-                    std::unique_ptr<Call> callNode = std::make_unique<Call>(Call{});
-                    advance(tokenList, index, 1);
-                    //call arguments
-                    while(!isType(getToken(tokenList, index), TokenType::RPAREN)){ //WORK ON THIS
-                        std::unique_ptr<Expression> argument = parseExpression(tokenList, index);
-                        //skip COMMA
-                        if(!isType(getToken(tokenList, index), TokenType::COMMA)){ //Check if the token is COMMA
-                            std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-                            throw std::runtime_error("Invalid token in parsePostfixExpression: Expected Comma in function call args");
-                        }
-                        advance(tokenList, index, 1); //skip COMMA
-                    }
-                    //skip RPAREN
-                    if(!isType(getToken(tokenList, index), TokenType::RPAREN)){ //Check if the token is RPAREN
-                        std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-                        throw std::runtime_error("Invalid token in parsePrefixExpression: Expected Right Parenthesis");
-                    }
-                    advance(tokenList, index, 1); //skip RPAREN
-
-                    callNode->Arguments
-                    callNode->Id = std::make_unique<Identifier>(Identifier{p->Text});
-
-
+            if(isType(currentToken, TokenType::LPAREN)){ //function call
+                Identifier* id = dynamic_cast<Identifier*>(left.get());
+                if(!id){
+                    break; //left is not an identifier
                 }
+
+                std::unique_ptr<Call> callNode = std::make_unique<Call>(Call{});
+                callNode->Id = std::unique_ptr<Identifier>(static_cast<Identifier*>(left.release()));
+
+                advance(tokenList, index, 1); //skip LPAREN
+                //call arguments
+                while(!isType(getToken(tokenList, index), TokenType::RPAREN)){
+                    std::unique_ptr<Expression> argument = parseExpression(tokenList, index);
+                    callNode->Arguments.push_back(std::move(argument));
+                    //continue if COMMA
+                    if(isType(getToken(tokenList, index), TokenType::COMMA)){ //Check if the token is COMMA
+                        advance(tokenList, index, 1); //skip COMMA
+                        continue;
+                    }
+                    break;
+                }
+                //skip RPAREN
+                if(!isType(getToken(tokenList, index), TokenType::RPAREN)){ //Check if the token is RPAREN
+                    std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+                    throw std::runtime_error("Invalid token in parsePostfixExpression: Expected Right Parenthesis when parsing function call arguments");
+                }
+                advance(tokenList, index, 1); //skip RPAREN
+
+                left = std::move(callNode);
+                continue;
             }
+            
+            if(getPrecedence(currentToken.type, 2) != -1){ //if is postfix operator
+                std::unique_ptr<PostfixOp> postfixNode = std::make_unique<PostfixOp>(PostfixOp{});
+                postfixNode->Expr = std::move(left);
+                postfixNode->Op = toPostfixOperator(currentToken.type);
+                advance(tokenList, index, 1); //skip current postfix operator
+                left = std::move(postfixNode);
+                continue;
+            }
+            break;
         }
+        return left;
     }
 
+    BinaryOperator toBinaryOperator(const TokenType& type){
+        switch(type){
+            
+        };
+    }
 
 };
-

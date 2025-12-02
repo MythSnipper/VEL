@@ -79,10 +79,10 @@ enum class BinaryOperator{
 
     // logical
     ANDAND,     // &&
-    OROR        // ||
-};
+    OROR,       // ||
 
-enum class AssignmentOperator{
+
+
     ASSIGN,        // =
     ADD_ASSIGN,    // +=
     SUB_ASSIGN,    // -=
@@ -262,7 +262,7 @@ namespace Parser{
     std::unique_ptr<For> parseFor(const std::vector<Token>& tokenList, int& index);
     std::unique_ptr<ExpressionStatement> parseExpressionStatement(const std::vector<Token>& tokenList, int& index, const TokenType& stopType = TokenType::SEMICOLON);
     
-    uint8_t getPrecedence(const TokenType& type, const uint8_t& mode = 0);
+    int getPrecedence(const TokenType& type, const uint8_t& mode = 0);
     std::unique_ptr<Expression> parseExpression(const std::vector<Token>& tokenList, int& index, uint8_t minPrecedence = 0);
     std::unique_ptr<Expression> parsePrefixExpression(const std::vector<Token>& tokenList, int& index);
     std::unique_ptr<Expression> parsePostfixExpression(const std::vector<Token>& tokenList, int& index, std::unique_ptr<Expression> left);
