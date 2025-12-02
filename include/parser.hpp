@@ -241,29 +241,34 @@ struct Empty : Statement{
 //-----------------------------------------------------------------------------------------------------------------------
 
 
+namespace Parser{
+    Program constructAST(const std::vector<Token>& tokenList);
+    Token getToken(const std::vector<Token>& tokenList, const int& index, const int& offset = 0);
+    void advance(const std::vector<Token>&, int& index, const int& numTokens);
+    bool isType(const Token& token, const TokenType& type);
+    bool isLiteral(const Token& token);
+    bool isTypename(const Token& token);
+    BuiltinType convertType(const TokenType& type);
 
-Program constructAST(const std::vector<Token>& tokenList);
-Token getToken(const std::vector<Token>& tokenList, const int& index, const int& offset = 0);
-void advance(const std::vector<Token>&, int& index, const int& numTokens);
-bool isType(const Token& token, const TokenType& type);
-bool isTypename(const Token& token);
-BuiltinType convertType(const TokenType& type);
-
-std::unique_ptr<Function> parseFunction(const std::vector<Token>& tokenList, int& index);
-std::unique_ptr<Assembly> parseAssembly(const std::vector<Token>& tokenList, int& index);
-std::unique_ptr<GlobalVariableDeclaration> parseGlobalVariableDeclaration(const std::vector<Token>& tokenList, int& index);
-std::unique_ptr<VariableDeclaration> parseVariableDeclaration(const std::vector<Token>& tokenList, int& index, const TokenType& stopType = TokenType::SEMICOLON);
-std::unique_ptr<Block> parseBlock(const std::vector<Token>& tokenList, int& index);
-std::unique_ptr<Statement> parseStatement(const std::vector<Token>& tokenList, int& index);
-std::unique_ptr<Return> parseReturn(const std::vector<Token>& tokenList, int& index);
-std::unique_ptr<If> parseIf(const std::vector<Token>& tokenList, int& index);
-std::unique_ptr<While> parseWhile(const std::vector<Token>& tokenList, int& index);
-std::unique_ptr<For> parseFor(const std::vector<Token>& tokenList, int& index);
-std::unique_ptr<ExpressionStatement> parseExpressionStatement(const std::vector<Token>& tokenList, int& index);
-std::unique_ptr<Expression> parseExpression(const std::vector<Token>& tokenList, int& index);
+    std::unique_ptr<Function> parseFunction(const std::vector<Token>& tokenList, int& index);
+    std::unique_ptr<Assembly> parseAssembly(const std::vector<Token>& tokenList, int& index);
+    std::unique_ptr<GlobalVariableDeclaration> parseGlobalVariableDeclaration(const std::vector<Token>& tokenList, int& index);
+    std::unique_ptr<VariableDeclaration> parseVariableDeclaration(const std::vector<Token>& tokenList, int& index, const TokenType& stopType = TokenType::SEMICOLON);
+    std::unique_ptr<Block> parseBlock(const std::vector<Token>& tokenList, int& index);
+    std::unique_ptr<Statement> parseStatement(const std::vector<Token>& tokenList, int& index);
+    std::unique_ptr<Return> parseReturn(const std::vector<Token>& tokenList, int& index);
+    std::unique_ptr<If> parseIf(const std::vector<Token>& tokenList, int& index);
+    std::unique_ptr<While> parseWhile(const std::vector<Token>& tokenList, int& index);
+    std::unique_ptr<For> parseFor(const std::vector<Token>& tokenList, int& index);
+    std::unique_ptr<ExpressionStatement> parseExpressionStatement(const std::vector<Token>& tokenList, int& index, const TokenType& stopType = TokenType::SEMICOLON);
+    
+    uint8_t getPrecedence(const TokenType& type, const uint8_t& mode = 0);
+    std::unique_ptr<Expression> parseExpression(const std::vector<Token>& tokenList, int& index, uint8_t minPrecedence = 0);
+    std::unique_ptr<Expression> parsePrefixExpression(const std::vector<Token>& tokenList, int& index);
+    std::unique_ptr<Expression> parsePostfixExpression(const std::vector<Token>& tokenList, int& index, std::unique_ptr<Expression> left);
 
 
-
+};
 
 
 

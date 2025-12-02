@@ -1,6 +1,6 @@
 #include <main.hpp>
 
-//#define LEXER_DEBUG
+#define LEXER_DEBUG
 #define PARSER_DEBUG
 
 int main(int argc, char* argv[]){
@@ -55,7 +55,7 @@ int main(int argc, char* argv[]){
     //Parser
     std::cout << "Parser:\n";
 
-    Program AST = constructAST(tokens);
+    Program AST = Parser::constructAST(tokens);
 
 
 
