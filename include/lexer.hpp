@@ -83,9 +83,10 @@ enum class TokenType{
     OR,                   // |
     OROR,                 // ||
     XOR,                  // ^
+    XORXOR,               // ^^
     LSHIFT,               // <<
     RSHIFT,               // >>
-    SWAP,                 // ^^
+    SWAP,                 // $$
 
     //prefix
     NOT_LOGICAL,          // !

@@ -56,8 +56,9 @@ int main(int argc, char* argv[]){
     std::cout << "Parser:\n";
 
     Program AST = Parser::constructAST(tokens);
-
-
+    
+    AST.print();
+    
 
     /*
     asm{

@@ -85,6 +85,7 @@ namespace Lexer{
         {TokenType::OR, "OR"},
         {TokenType::OROR, "OROR"},
         {TokenType::XOR, "XOR"},    
+        {TokenType::XORXOR, "XORXOR"},    
         {TokenType::LSHIFT, "LSHIFT"},
         {TokenType::RSHIFT, "RSHIFT"},
         {TokenType::NOT_BITWISE, "Bitwise NOT"},
@@ -366,11 +367,19 @@ namespace Lexer{
                     advance(source, i, line, col);
                 }
                 else if(next_char == '^'){
-                    current_token = (Token){TokenType::SWAP, "^^", 0, 0, line, col};
+                    current_token = (Token){TokenType::XORXOR, "^^", 0, 0, line, col};
                     advance(source, i, line, col);
                 }
                 else{
                     current_token = (Token){TokenType::XOR, "^", 0, 0, line, col};
+                }
+                token_list.push_back(current_token);
+                advance(source, i, line, col);
+            }
+            else if(current_char == '$'){
+                if(next_char == '$'){
+                    current_token = (Token){TokenType::SWAP, "$$", 0, 0, line, col};
+                    advance(source, i, line, col);
                 }
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
@@ -496,6 +505,7 @@ namespace Lexer{
             return {TokenType::INT_LITERAL, current_text, value, 0, startline, startcol};
         }
     }
+    
     Token scanStringLiteral(const std::string& source, uint32_t& i, int& line, int& col){
         advance(source, i, line, col);
         int startLine = line;

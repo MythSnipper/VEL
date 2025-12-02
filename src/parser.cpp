@@ -2,64 +2,158 @@
 
 std::unordered_map<TokenType, int> binding_power_table = {
 
-    {TokenType::MUL, 12000000},                 // *
-    {TokenType::DIV, 12000000},                 // /
-    {TokenType::MOD, 12000000},                 // %
+    {TokenType::MUL, 13},                 // *
+    {TokenType::DIV, 13},                 // /
+    {TokenType::MOD, 13},                 // %
 
-    {TokenType::ADD, 11000000},                 // +
-    {TokenType::SUB, 11000000},                 // -
+    {TokenType::ADD, 12},                 // +
+    {TokenType::SUB, 12},                 // -
 
-    {TokenType::LSHIFT, 10000000},              // <<
-    {TokenType::RSHIFT, 10000000},              // >>
+    {TokenType::LSHIFT, 11},              // <<
+    {TokenType::RSHIFT, 11},              // >>
 
-    {TokenType::LT, 9000000},                  // <
-    {TokenType::GT, 9000000},                  // >
-    {TokenType::LTE, 9000000},                 // <=
-    {TokenType::GTE, 9000000},                 // >=
+    {TokenType::LT, 10},                  // <
+    {TokenType::GT, 10},                  // >
+    {TokenType::LTE, 10},                 // <=
+    {TokenType::GTE, 10},                 // >=
 
-    {TokenType::EQ, 8000000},                   // ==
-    {TokenType::NEQ, 8000000},                  // != 
+    {TokenType::EQ, 9},                   // ==
+    {TokenType::NEQ, 9},                  // != 
 
-    {TokenType::AND, 7000000},                  // &
-    {TokenType::XOR, 6000000},                  // ^
-    {TokenType::OR, 5000000},                   // |
+    {TokenType::AND, 8},                  // &
+    {TokenType::XOR, 7},                  // ^
+    {TokenType::OR, 6},                   // |
     
-    {TokenType::ANDAND, 4000000},               // &&
-    {TokenType::OROR, 3000000},                 // ||
-    {TokenType::SWAP, 2000000},                 // ^^
+    {TokenType::ANDAND, 5},               // &&
+    {TokenType::OROR, 4},                 // ||
+    {TokenType::XORXOR, 3},               // ^^
+    {TokenType::SWAP, 2},                 // $$
 
-    {TokenType::ASSIGN, 1000000},               // =
-    {TokenType::ADD_ASSIGN, 1000000},           // +=
-    {TokenType::SUB_ASSIGN, 1000000},           // -=
-    {TokenType::MUL_ASSIGN, 1000000},           // *=
-    {TokenType::DIV_ASSIGN, 1000000},           // /=
-    {TokenType::MOD_ASSIGN, 1000000},           // %=
-    {TokenType::AND_ASSIGN, 1000000},           // &=
-    {TokenType::OR_ASSIGN, 1000000},            // |=
-    {TokenType::XOR_ASSIGN, 1000000},           // ^=
-    {TokenType::LSHIFT_ASSIGN, 1000000},        // <<=
-    {TokenType::RSHIFT_ASSIGN, 1000000},        // >>=
-    {TokenType::NOT_ASSIGN, 1000000},           // !~=
+    {TokenType::ASSIGN, 1},               // =
+    {TokenType::ADD_ASSIGN, 1},           // +=
+    {TokenType::SUB_ASSIGN, 1},           // -=
+    {TokenType::MUL_ASSIGN, 1},           // *=
+    {TokenType::DIV_ASSIGN, 1},           // /=
+    {TokenType::MOD_ASSIGN, 1},           // %=
+    {TokenType::AND_ASSIGN, 1},           // &=
+    {TokenType::OR_ASSIGN, 1},            // |=
+    {TokenType::XOR_ASSIGN, 1},           // ^=
+    {TokenType::LSHIFT_ASSIGN, 1},        // <<=
+    {TokenType::RSHIFT_ASSIGN, 1},        // >>=
+    {TokenType::NOT_ASSIGN, 1},           // !~=
     
 };
 std::unordered_map<TokenType, int> binding_power_table_postfix = {
     //POSTFIX
-    {TokenType::INC, 13000000},                 // ++
-    {TokenType::DEC, 13000000},                 // -- 
+    {TokenType::INC, 14},                 // ++
+    {TokenType::DEC, 14},                 // -- 
 };
 std::unordered_map<TokenType, int> binding_power_table_prefix = {
     //PREFIX
-    {TokenType::NOT_LOGICAL, 14000000},         // !
-    {TokenType::NOT_BITWISE, 14000000},         // !~
-    {TokenType::INC, 14000000},                 // ++
-    {TokenType::DEC, 14000000},                 // --
-    {TokenType::ADD, 14000000},                 // +
-    {TokenType::SUB, 14000000},                 // -
-
+    {TokenType::NOT_LOGICAL, 15},         // !
+    {TokenType::NOT_BITWISE, 15},         // !~
+    {TokenType::INC, 15},                 // ++
+    {TokenType::DEC, 15},                 // --
+    {TokenType::ADD, 15},                 // +
+    {TokenType::SUB, 15},                 // -
 };
 
-namespace Parser{
 
+//stuff for debug print in header file
+void printIndent(int level){
+    for(int i=0;i<level;i++){
+        std::cout << "    ";
+    }
+}
+std::string toString(BuiltinType t){
+    switch(t){
+        case BuiltinType::INT8: return "int8";
+        case BuiltinType::INT16: return "int16";
+        case BuiltinType::INT32: return "int32";
+        case BuiltinType::INT64: return "int64";
+        case BuiltinType::UINT8: return "uint8";
+        case BuiltinType::UINT16: return "uint16";
+        case BuiltinType::UINT32: return "uint32";
+        case BuiltinType::UINT64: return "uint64";
+        case BuiltinType::FLOAT32: return "float32";
+        case BuiltinType::FLOAT64: return "float64";
+        case BuiltinType::CHAR: return "char";
+        case BuiltinType::STRING: return "string";
+        case BuiltinType::VOID: return "void";
+    }
+    return "nein";
+}
+std::string toString(LiteralType t){
+    switch(t){
+        case LiteralType::INT: return "int";
+        case LiteralType::FLOAT: return "float";
+        case LiteralType::CHAR: return "char";
+        case LiteralType::STRING: return "string";
+    }
+    return "nein";
+}
+std::string toString(PostfixOperator t){
+    switch(t){
+        case PostfixOperator::INC: return "++";
+        case PostfixOperator::DEC: return "--";
+    }
+    return "nein";
+}
+std::string toString(PrefixOperator t){
+    switch(t){
+        case PrefixOperator::LOGICAL_NOT: return "!";
+        case PrefixOperator::BITWISE_NOT: return "!~";
+        case PrefixOperator::INC: return "++";
+        case PrefixOperator::DEC: return "--";
+        case PrefixOperator::ADD: return "+";
+        case PrefixOperator::NEG: return "-";
+    }
+    return "nein";
+}
+std::string toString(BinaryOperator t){
+    switch(t){
+        case BinaryOperator::ADD: return "+";
+        case BinaryOperator::SUB: return "-";
+        case BinaryOperator::MUL: return "*";
+        case BinaryOperator::DIV: return "/";
+        case BinaryOperator::MOD: return "%";
+
+        case BinaryOperator::EQ: return "==";
+        case BinaryOperator::NEQ: return "!=";
+        case BinaryOperator::LT: return "<";
+        case BinaryOperator::GT: return ">";
+        case BinaryOperator::LTE: return "<=";
+        case BinaryOperator::GTE: return ">=";
+
+        case BinaryOperator::BITWISE_AND: return "&";
+        case BinaryOperator::BITWISE_OR: return "|";
+        case BinaryOperator::BITWISE_XOR: return "^";
+        case BinaryOperator::LSHIFT: return "<<";
+        case BinaryOperator::RSHIFT: return ">>";
+
+        case BinaryOperator::LOGICAL_AND: return "&&";
+        case BinaryOperator::LOGICAL_OR: return "||";
+        case BinaryOperator::LOGICAL_XOR: return "^^";
+
+        case BinaryOperator::ASSIGN: return "=";
+        case BinaryOperator::ADD_ASSIGN: return "+=";
+        case BinaryOperator::SUB_ASSIGN: return "-=";
+        case BinaryOperator::MUL_ASSIGN: return "*=";
+        case BinaryOperator::DIV_ASSIGN: return "/=";
+        case BinaryOperator::MOD_ASSIGN: return "%=";
+        case BinaryOperator::AND_ASSIGN: return "&=";
+        case BinaryOperator::OR_ASSIGN: return "|=";
+        case BinaryOperator::XOR_ASSIGN: return "^=";
+        case BinaryOperator::LSHIFT_ASSIGN: return "<<=";
+        case BinaryOperator::RSHIFT_ASSIGN: return ">>=";
+        case BinaryOperator::NOT_ASSIGN: return "!~=";
+        case BinaryOperator::SWAP: return "$$";
+    }
+    return "nein";
+}
+
+
+namespace Parser{
     Program constructAST(const std::vector<Token>& tokenList){
         Program program;
         int index = 0;
@@ -145,7 +239,7 @@ namespace Parser{
         }
     }
 
-    BuiltinType convertType(const TokenType& type){
+    BuiltinType toBuiltinType(const TokenType& type){
         switch(type){
             case TokenType::INT8_KEYWORD:
                 return BuiltinType::INT8;
@@ -190,7 +284,7 @@ namespace Parser{
 
     std::unique_ptr<Function> parseFunction(const std::vector<Token>& tokenList, int& index){
         std::unique_ptr<Function> FunctionNode = std::make_unique<Function>(Function{});
-        FunctionNode->ReturnType = Type{true, convertType(getToken(tokenList, index).type), ""}; //First token is the return type
+        FunctionNode->ReturnType = Type{true, toBuiltinType(getToken(tokenList, index).type), ""}; //First token is the return type
         
         FunctionNode->Id = std::make_unique<Identifier>(Identifier{getToken(tokenList, index, 1).text}); //Second token is the function identifier
         
@@ -210,7 +304,7 @@ namespace Parser{
                 Token nextToken = getToken(tokenList, index, 1);
 
                 if(isTypename(currentToken) && isType(nextToken, TokenType::IDENTIFIER)){
-                    Type temptype{true, convertType(currentToken.type), ""};
+                    Type temptype{true, toBuiltinType(currentToken.type), ""};
                     std::unique_ptr<Identifier> Id = std::make_unique<Identifier>(Identifier{nextToken.text});
                     FunctionNode->Parameters.push_back({temptype, std::move(Id)});
                     advance(tokenList, index, 2);
@@ -243,7 +337,7 @@ namespace Parser{
 
     std::unique_ptr<GlobalVariableDeclaration> parseGlobalVariableDeclaration(const std::vector<Token>& tokenList, int& index){
         std::unique_ptr<GlobalVariableDeclaration> GlobalVariableDeclarationNode = std::make_unique<GlobalVariableDeclaration>(GlobalVariableDeclaration{});
-        GlobalVariableDeclarationNode->Typename = Type{true, convertType(getToken(tokenList, index).type), ""}; //First token is the return type
+        GlobalVariableDeclarationNode->Typename = Type{true, toBuiltinType(getToken(tokenList, index).type), ""}; //First token is the return type
         
         GlobalVariableDeclarationNode->Id = std::make_unique<Identifier>(Identifier{getToken(tokenList, index, 1).text}); //Second token is the function identifier
         
@@ -275,7 +369,7 @@ namespace Parser{
 
     std::unique_ptr<VariableDeclaration> parseVariableDeclaration(const std::vector<Token>& tokenList, int& index, const TokenType& stopType){
         std::unique_ptr<VariableDeclaration> VariableDeclarationNode = std::make_unique<VariableDeclaration>(VariableDeclaration{});
-        VariableDeclarationNode->Typename = Type{true, convertType(getToken(tokenList, index).type), ""}; //First token is the return type
+        VariableDeclarationNode->Typename = Type{true, toBuiltinType(getToken(tokenList, index).type), ""}; //First token is the return type
         
         VariableDeclarationNode->Id = std::make_unique<Identifier>(Identifier{getToken(tokenList, index, 1).text}); //Second token is the function identifier
         
@@ -484,6 +578,7 @@ namespace Parser{
 
     std::unique_ptr<For> parseFor(const std::vector<Token>& tokenList, int& index){
         std::unique_ptr<For> forNode = std::make_unique<For>(For{});
+        advance(tokenList, index, 1); //skip for keyword
         //skip LPAREN
         if(!isType(getToken(tokenList, index), TokenType::LPAREN)){ //Check if the token is LPAREN
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
@@ -505,7 +600,7 @@ namespace Parser{
             advance(tokenList, index, 1); //skip COMMA
         }
         //condition
-        forNode->Initializer = parseExpression(tokenList, index); //Expression
+        forNode->Condition = parseExpression(tokenList, index); //Expression
         //skip COMMA
         if(!isType(getToken(tokenList, index), TokenType::COMMA)){ //Check if the token is COMMA
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
@@ -514,7 +609,7 @@ namespace Parser{
         advance(tokenList, index, 1); //skip COMMA
 
         //modifier
-        forNode->Initializer = parseExpression(tokenList, index); //Expression
+        forNode->Modifier = parseExpression(tokenList, index); //Expression
         
         //skip RPAREN
         if(!isType(getToken(tokenList, index), TokenType::RPAREN)){ //Check if the token is RPAREN
@@ -548,42 +643,169 @@ namespace Parser{
     int getPrecedence(const TokenType& type, const uint8_t& mode){ // 0 for binary, 1 for prefix, 2 for postfix
         if(mode == 1){
             if(binding_power_table_prefix.find(type) != binding_power_table_prefix.end()){ //found
-                return binding_power_table_prefix.at(type);
+                return binding_power_table_prefix.at(type) * 1000000;
             }
         }
         else if(mode == 2){
             if(binding_power_table_postfix.find(type) != binding_power_table_postfix.end()){ //found
-                return binding_power_table_postfix.at(type);
+                return binding_power_table_postfix.at(type) * 1000000;
             }
         }
         else{
             if(binding_power_table.find(type) != binding_power_table.end()){ //found
-                return binding_power_table.at(type);
+                return binding_power_table.at(type) * 1000000;
             }
         }
         return -1;
     }
 
-    std::unique_ptr<Expression> parseExpression(const std::vector<Token>& tokenList, int& index, uint8_t minPrecedence){
+    std::unique_ptr<Expression> parseExpression(const std::vector<Token>& tokenList, int& index, int minPrecedence){
+        Token current = getToken(tokenList, index);
+        if(current.type == TokenType::SEMICOLON || current.type == TokenType::RPAREN || current.type == TokenType::COMMA){
+            return nullptr;
+        }
         std::unique_ptr<Expression> left = parsePrefixExpression(tokenList, index);
 
         left = parsePostfixExpression(tokenList, index, std::move(left));
+        //binary loop
         while(true){
             Token currentToken = getToken(tokenList, index);
             int precedence = getPrecedence(currentToken.type);
             if(precedence < minPrecedence){
                 break;
             }
-            int leftPrecedence = precedence;
-            int rightPrecedence = leftPrecedence + 1;
-            
-            advance(tokenList, index, 1);
-            std::unique_ptr<Expression> right = parseExpression(tokenList, index, rightPrecedence);
+            bool rightAssoc = (
+                currentToken.type == TokenType::ASSIGN ||
+                currentToken.type == TokenType::ADD_ASSIGN ||
+                currentToken.type == TokenType::SUB_ASSIGN ||
+                currentToken.type == TokenType::MUL_ASSIGN ||
+                currentToken.type == TokenType::DIV_ASSIGN ||
+                currentToken.type == TokenType::MOD_ASSIGN ||
+                currentToken.type == TokenType::AND_ASSIGN ||
+                currentToken.type == TokenType::OR_ASSIGN ||
+                currentToken.type == TokenType::XOR_ASSIGN ||
+                currentToken.type == TokenType::LSHIFT_ASSIGN ||
+                currentToken.type == TokenType::RSHIFT_ASSIGN ||
+                currentToken.type == TokenType::NOT_ASSIGN
+            );
+            int newMinPrec = rightAssoc ? precedence : precedence+1;
+
+            advance(tokenList, index, 1); //skip the operator
+            std::unique_ptr<Expression> right = parseExpression(tokenList, index, newMinPrec);
 
             //make left a binary node
             std::unique_ptr<BinaryOp> binaryNode = std::make_unique<BinaryOp>(BinaryOp{});
             binaryNode->Left = std::move(left);
-            binaryNode->Op = toBinaryOperator(currentToken.type);
+
+            //convert to binary operator
+            switch(currentToken.type){
+                case TokenType::ADD:
+                binaryNode->Op = BinaryOperator::ADD;
+                break;
+                case TokenType::SUB:
+                binaryNode->Op = BinaryOperator::SUB;
+                break;
+                case TokenType::MUL:
+                binaryNode->Op = BinaryOperator::MUL;
+                break;
+                case TokenType::DIV:
+                binaryNode->Op = BinaryOperator::DIV;
+                break;
+                case TokenType::MOD:
+                binaryNode->Op = BinaryOperator::MOD;
+                break;
+
+                case TokenType::EQ:
+                binaryNode->Op = BinaryOperator::EQ;
+                break;
+                case TokenType::NEQ:
+                binaryNode->Op = BinaryOperator::NEQ;
+                break;
+                case TokenType::LT:
+                binaryNode->Op = BinaryOperator::LT;
+                break;
+                case TokenType::GT:
+                binaryNode->Op = BinaryOperator::GT;
+                break;
+                case TokenType::LTE:
+                binaryNode->Op = BinaryOperator::LTE;
+                break;
+                case TokenType::GTE:
+                binaryNode->Op = BinaryOperator::GTE;
+                break;
+
+                case TokenType::AND:
+                binaryNode->Op = BinaryOperator::BITWISE_AND;
+                break;
+                case TokenType::OR:
+                binaryNode->Op = BinaryOperator::BITWISE_OR;
+                break;
+                case TokenType::XOR:
+                binaryNode->Op = BinaryOperator::BITWISE_XOR;
+                break;
+                case TokenType::LSHIFT:
+                binaryNode->Op = BinaryOperator::LSHIFT;
+                break;
+                case TokenType::RSHIFT:
+                binaryNode->Op = BinaryOperator::RSHIFT;
+                break;
+
+                case TokenType::ANDAND:
+                binaryNode->Op = BinaryOperator::LOGICAL_AND;
+                break;
+                case TokenType::OROR:
+                binaryNode->Op = BinaryOperator::LOGICAL_OR;
+                break;
+                case TokenType::XORXOR:
+                binaryNode->Op = BinaryOperator::LOGICAL_XOR;
+                break;
+
+                case TokenType::ASSIGN:
+                binaryNode->Op = BinaryOperator::ASSIGN;
+                break;
+                case TokenType::ADD_ASSIGN:
+                binaryNode->Op = BinaryOperator::ADD_ASSIGN;
+                break;
+                case TokenType::SUB_ASSIGN:
+                binaryNode->Op = BinaryOperator::SUB_ASSIGN;
+                break;
+                case TokenType::MUL_ASSIGN:
+                binaryNode->Op = BinaryOperator::MUL_ASSIGN;
+                break;
+                case TokenType::DIV_ASSIGN:
+                binaryNode->Op = BinaryOperator::DIV_ASSIGN;
+                break;
+                case TokenType::MOD_ASSIGN:
+                binaryNode->Op = BinaryOperator::MOD_ASSIGN;
+                break;
+                case TokenType::AND_ASSIGN:
+                binaryNode->Op = BinaryOperator::AND_ASSIGN;
+                break;
+                case TokenType::OR_ASSIGN:
+                binaryNode->Op = BinaryOperator::OR_ASSIGN;
+                break;
+                case TokenType::XOR_ASSIGN:
+                binaryNode->Op = BinaryOperator::XOR_ASSIGN;
+                break;
+                case TokenType::LSHIFT_ASSIGN:
+                binaryNode->Op = BinaryOperator::LSHIFT_ASSIGN;
+                break;
+                case TokenType::RSHIFT_ASSIGN:
+                binaryNode->Op = BinaryOperator::RSHIFT_ASSIGN;
+                break;
+                case TokenType::NOT_ASSIGN:
+                binaryNode->Op = BinaryOperator::NOT_ASSIGN;
+                break;
+                case TokenType::SWAP:
+                binaryNode->Op = BinaryOperator::SWAP;
+                break;
+
+                default:
+                std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+                throw std::runtime_error("Invalid token type in parseExpression: Expected Binary Operator type when converting to a binary operator");
+            };
+
+
             binaryNode->Right = std::move(right);
 
             left = std::move(binaryNode);
@@ -596,11 +818,35 @@ namespace Parser{
 
         if(isLiteral(currentToken)){
             advance(tokenList, index, 1);
-            return makeLiteralExpression(currentToken);
+            std::unique_ptr<Literal> literalNode = std::make_unique<Literal>(Literal{});
+            switch(currentToken.type){
+                case TokenType::INT_LITERAL:
+                literalNode->Type = LiteralType::INT;
+                literalNode->IntValue = currentToken.value;
+                break;
+                case TokenType::FLOAT_LITERAL:
+                literalNode->Type = LiteralType::FLOAT;
+                literalNode->FloatValue = currentToken.valuef;
+                break;
+                case TokenType::CHAR_LITERAL:
+                literalNode->Type = LiteralType::CHAR;
+                literalNode->CharValue = (char)currentToken.value;
+                break;
+                case TokenType::STRING_LITERAL:
+                literalNode->Type = LiteralType::STRING;
+                literalNode->StringValue = currentToken.text;
+                break;
+                default:
+                std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+                throw std::runtime_error("Invalid token type in parsePrefixExpression: Expected Literal type when constructing literalNode");
+            }
+            return literalNode;
         }
         if(isType(currentToken, TokenType::IDENTIFIER)){
             advance(tokenList, index, 1);
-            return makeIdentifierExpression(currentToken);
+            std::unique_ptr<Identifier> identifierNode = std::make_unique<Identifier>(Identifier{});
+            identifierNode->Text = currentToken.text;
+            return identifierNode;
         }
         if(isType(currentToken, TokenType::LPAREN)){ //grouping, (
             advance(tokenList, index, 1); //skip LPAREN
@@ -618,15 +864,38 @@ namespace Parser{
         }
 
         if(getPrecedence(currentToken.type, 1) != -1){ //if it is a prefix operator
-            advance(tokenList, index, 1);
-            uint8_t precedence = getPrecedence(currentToken.type, true);
+            advance(tokenList, index, 1); //skip the operator
+            int precedence = getPrecedence(currentToken.type, true);
             std::unique_ptr<PrefixOp> prefixNode = std::make_unique<PrefixOp>(PrefixOp{});
-            prefixNode->Op = toPrefixOperator(currentToken.type);
+
+            //convert to prefix operator
+            switch(currentToken.type){
+                case TokenType::NOT_LOGICAL:
+                prefixNode->Op = PrefixOperator::LOGICAL_NOT;
+                break;
+                case TokenType::NOT_BITWISE:
+                prefixNode->Op = PrefixOperator::BITWISE_NOT;
+                break;
+                case TokenType::INC:
+                prefixNode->Op = PrefixOperator::INC;
+                break;
+                case TokenType::DEC:
+                prefixNode->Op = PrefixOperator::DEC;
+                break;
+                case TokenType::ADD:
+                prefixNode->Op = PrefixOperator::ADD;
+                break;
+                case TokenType::SUB:
+                prefixNode->Op = PrefixOperator::NEG;
+                break;
+                default:
+                std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+                throw std::runtime_error("Invalid token type in parsePrefixExpression: Expected Prefix Operator type when converting to a prefix operator");
+            };
+
             prefixNode->Expr = parseExpression(tokenList, index, precedence);
             return prefixNode;
         }
-
-
 
         std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
         throw std::runtime_error("Unexpected token in parsePrefixExpression: no valid token types recognized");
@@ -669,10 +938,25 @@ namespace Parser{
             }
             
             if(getPrecedence(currentToken.type, 2) != -1){ //if is postfix operator
+                advance(tokenList, index, 1); //skip current postfix operator
                 std::unique_ptr<PostfixOp> postfixNode = std::make_unique<PostfixOp>(PostfixOp{});
                 postfixNode->Expr = std::move(left);
-                postfixNode->Op = toPostfixOperator(currentToken.type);
-                advance(tokenList, index, 1); //skip current postfix operator
+
+
+                //convert to postfix operator
+                switch(currentToken.type){
+                    case TokenType::INC:
+                    postfixNode->Op = PostfixOperator::INC;
+                    break;
+                    case TokenType::DEC:
+                    postfixNode->Op = PostfixOperator::DEC;
+                    break;
+                    default:
+                    std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+                    throw std::runtime_error("Invalid token type in parsePostfixExpression: Expected Postfix Operator type when converting to a postfix operator");
+                };
+
+
                 left = std::move(postfixNode);
                 continue;
             }
@@ -681,10 +965,6 @@ namespace Parser{
         return left;
     }
 
-    BinaryOperator toBinaryOperator(const TokenType& type){
-        switch(type){
-            
-        };
-    }
+    
 
 };

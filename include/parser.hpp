@@ -71,15 +71,16 @@ enum class BinaryOperator{
     GTE,        // >=
 
     // bitwise
-    AND,        // &
-    OR,         // |
-    XOR,        // ^
+    BITWISE_AND,        // &
+    BITWISE_OR,         // |
+    BITWISE_XOR,        // ^
     LSHIFT,     // <<
     RSHIFT,     // >>
 
     // logical
-    ANDAND,     // &&
-    OROR,       // ||
+    LOGICAL_AND,     // &&
+    LOGICAL_OR,       // ||
+    LOGICAL_XOR,     // ^^
 
 
 
@@ -95,12 +96,20 @@ enum class BinaryOperator{
     LSHIFT_ASSIGN, // <<=
     RSHIFT_ASSIGN, // >>=
     NOT_ASSIGN,    // !~=
-    SWAP,          // ^^   I'll include it here as it is kind of an assignment operator, can be fixed in semantic analysis
+    SWAP,          // $$   I'll include it here as it is kind of an assignment operator, can be fixed in semantic analysis
 };
 
 
-//-----------------------------------------------------------------------------------------------------------------------
+void printIndent(int level);
 
+std::string toString(BuiltinType t);
+std::string toString(LiteralType t);
+std::string toString(PostfixOperator t);
+std::string toString(PrefixOperator t);
+std::string toString(BinaryOperator t);
+
+
+//-----------------------------------------------------------------------------------------------------------------------
 
 struct Type{
     bool isBuiltin;
@@ -114,12 +123,12 @@ struct Type{
 
 struct ASTNode{
     virtual ~ASTNode(){};
+    virtual void print(int level = 0) const{};
 };
 
 struct Declaration : virtual ASTNode{};
 struct Expression : virtual ASTNode{};
 struct Statement : virtual ASTNode{};
-
 
 //-----------------------------------------------------------------------------------------------------------------------
 struct Literal : Expression{
@@ -129,6 +138,22 @@ struct Literal : Expression{
     double FloatValue;
     char CharValue;
     std::string StringValue;
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "Literal: ";
+        switch(Type){
+            case LiteralType::INT:
+            std::cout << IntValue;break;
+            case LiteralType::FLOAT:
+            std::cout << FloatValue;break;
+            case LiteralType::CHAR:
+            std::cout << CharValue;break;
+            case LiteralType::STRING:
+            std::cout << StringValue;break;
+        }
+        std::cout << "\n";
+    }
 };
 
 struct Identifier : Expression{
@@ -137,48 +162,128 @@ struct Identifier : Expression{
     Identifier(const std::string& text){
         Text = text;
     }
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "Identifier: ";
+        std::cout << Text;
+        std::cout << "\n";
+    }
 };
 
 struct Call : Expression{
     std::unique_ptr<Identifier> Id;
     std::vector<std::unique_ptr<Expression>> Arguments;
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "Call: \n";
+        printIndent(level+1);
+        Id->print();
+        for(int i=0;i<Arguments.size();i++){
+            printIndent(level+1);
+            std::cout << "Argument " << i+1 << ": \n";
+            Arguments[i]->print(level+2);
+        }
+    }
 };
 
 struct PostfixOp : Expression{
     std::unique_ptr<Expression> Expr;
     PostfixOperator Op;
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "PostfixOp: " << toString(Op) << "\n";
+        Expr->print(level + 1);
+    }
 };
 
 struct PrefixOp : Expression{
     PrefixOperator Op;
     std::unique_ptr<Expression> Expr;
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "PrefixOp: " << toString(Op) << "\n";
+        Expr->print(level + 1);
+    }
 };
 
 struct BinaryOp : Expression{
     std::unique_ptr<Expression> Left;
     BinaryOperator Op;
     std::unique_ptr<Expression> Right;
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "BinaryOp: " << toString(Op) << "\n";
+        Left->print(level + 1);
+        Right->print(level + 1);
+    }
 };
 
 struct AssignmentOp : Expression{
     std::unique_ptr<Identifier> Target;
-    AssignmentOperator Op;
+    BinaryOperator Op;
     std::unique_ptr<Expression> Modifier;
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "AssignmentOp: " << toString(Op) << "\n";
+        Target->print(level + 1);
+        Modifier->print(level + 1);
+    }
 };
 //-----------------------------------------------------------------------------------------------------------------------
 
 struct Program : ASTNode{
     std::vector<std::unique_ptr<Declaration>> TopLevel;
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "Program: \n";
+        for(int i=0;i<TopLevel.size();i++){
+            printIndent(level+1);
+            std::cout << "Declaration " << i+1 << ": \n";
+            TopLevel[i]->print(level+2);
+        }
+    }
 };
 
 struct Block : Statement{
     std::vector<std::unique_ptr<Statement>> Statements;
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "Block: \n";
+        for(int i=0;i<Statements.size();i++){
+            printIndent(level+1);
+            std::cout << "Statement " << i+1 << ": \n";
+            Statements[i]->print(level+2);
+        }
+    }
 };
 
 struct GlobalVariableDeclaration : Declaration{
     Type Typename;
     std::unique_ptr<Identifier> Id;
     std::unique_ptr<Expression> Expr; //Expression or nullptr
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "Global Variable: \n";
+        printIndent(level+1);
+        std::cout << "Type: ";
+        std::cout << toString(Typename.builtinType);
+        std::cout << "\n";
+        Id->print(level + 1);
+        if(Expr){
+            printIndent(level+1);
+            std::cout << "Expression: \n";
+            Expr->print(level + 1);
+        }
+    }
 };
 
 struct Function : Declaration{
@@ -186,6 +291,27 @@ struct Function : Declaration{
     std::unique_ptr<Identifier> Id;
     std::vector<std::pair<Type, std::unique_ptr<Identifier>>> Parameters; //Typename, Identifier
     std::unique_ptr<Statement> Body;
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "Function: \n";
+        printIndent(level+1);
+        std::cout << "Return Type: ";
+        std::cout << toString(ReturnType.builtinType);
+        std::cout << "\n";
+        Id->print(level + 1);
+        for(int i=0;i<Parameters.size();i++){
+            printIndent(level+1);
+            std::cout << "Parameter " << i+1 << ": \n";
+            printIndent(level+2);
+            std::cout << "Type: ";
+            std::cout << toString(Parameters[i].first.builtinType);
+            std::cout << "\n";
+            Parameters[i].second->print(level+2);
+            std::cout << "\n";
+        }
+        Body->print(level + 1);
+    }
 };
 //-----------------------------------------------------------------------------------------------------------------------
 
@@ -193,19 +319,61 @@ struct VariableDeclaration : Statement{
     Type Typename;
     std::unique_ptr<Identifier> Id;
     std::unique_ptr<Expression> Expr; //Expression or nullptr
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "Variable Declaration: \n";
+        printIndent(level+1);
+        std::cout << "Type: ";
+        std::cout << toString(Typename.builtinType);
+        std::cout << "\n";
+        Id->print(level + 1);
+        if(Expr){
+            printIndent(level+1);
+            std::cout << "Expression: \n";
+            Expr->print(level+1);
+        }
+    }
 };
 
 struct Return : Statement{
     std::unique_ptr<Expression> Expr;
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "Return: \n";
+        if(Expr){
+            printIndent(level+1);
+            std::cout << "Expression: \n";
+            Expr->print(level+1);
+        }
+    }
 };
 
 struct ExpressionStatement : Statement{
     std::unique_ptr<Expression> Expr;
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "ExpressionStatement: \n";
+        if(Expr){
+            printIndent(level+1);
+            std::cout << "Expression: \n";
+            Expr->print(level+1);
+        }
+    }
 };
 
 struct ElseIf{
     std::unique_ptr<Expression> Condition;
     std::unique_ptr<Statement> Body; //Statement or Block
+
+    void print(int level = 0) const{
+        printIndent(level);
+        std::cout << "ElseIf: \n";
+        Condition->print(level + 1);
+        Body->print(level + 1);
+    }
 };
 
 struct If : Statement {
@@ -213,11 +381,42 @@ struct If : Statement {
     std::unique_ptr<Statement> Body; //Statement or Block
     std::vector<ElseIf> ElseIfs;
     std::unique_ptr<Statement> Else; //Statement or Block or nullptr
+
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "If: \n";
+        printIndent(level+1);
+        std::cout << "Condition: \n";
+        Condition->print(level + 1);
+        printIndent(level+1);
+        std::cout << "Body: \n";
+        Body->print(level + 1);
+        for(const auto& elseIf : ElseIfs){
+            elseIf.print(level + 1);
+        }
+        if(Else){
+            printIndent(level);
+            std::cout << "Else: \n";
+            Else->print(level + 1);
+        }
+    }
 };
 
 struct While : Statement{
     std::unique_ptr<Expression> Condition;
     std::unique_ptr<Statement> Body; //Statement or Block or nullptr
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "While: \n";
+        printIndent(level+1);
+        std::cout << "Condition: \n";
+        Condition->print(level + 1);
+        printIndent(level+1);
+        std::cout << "Body: \n";
+        Body->print(level + 1);
+    }
 };
 
 struct For : Statement{
@@ -225,6 +424,31 @@ struct For : Statement{
     std::unique_ptr<Expression> Condition; //Expression or nullptr
     std::unique_ptr<Expression> Modifier; //Expression or nullptr
     std::unique_ptr<Statement> Body; //Statement or Block or nullptr
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "For: \n";
+        if(Initializer){
+            printIndent(level+1);
+            std::cout << "Initializer: \n";
+            Initializer->print(level+1);
+        }
+        if(Condition){
+            printIndent(level+1);
+            std::cout << "Condition: \n";
+            Condition->print(level + 1);
+        }
+        if(Modifier){
+            printIndent(level+1);
+            std::cout << "Modifier: \n";
+            Modifier->print(level+1);
+        }
+        if(Body){
+            printIndent(level+1);
+            std::cout << "Body: \n";
+            Body->print(level+1);
+        }
+    }
 };
 
 struct Assembly : Statement, Declaration{
@@ -233,13 +457,22 @@ struct Assembly : Statement, Declaration{
     Assembly(const std::string& text){
         Text = text;
     }
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "Assembly: " << Text << "\n";
+    }
 };
 
 struct Empty : Statement{
     // :3
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "Empty\n";
+    }
 };
 //-----------------------------------------------------------------------------------------------------------------------
-
 
 namespace Parser{
     Program constructAST(const std::vector<Token>& tokenList);
@@ -248,7 +481,7 @@ namespace Parser{
     bool isType(const Token& token, const TokenType& type);
     bool isLiteral(const Token& token);
     bool isTypename(const Token& token);
-    BuiltinType convertType(const TokenType& type);
+    BuiltinType toBuiltinType(const TokenType& type);
 
     std::unique_ptr<Function> parseFunction(const std::vector<Token>& tokenList, int& index);
     std::unique_ptr<Assembly> parseAssembly(const std::vector<Token>& tokenList, int& index);
@@ -263,13 +496,12 @@ namespace Parser{
     std::unique_ptr<ExpressionStatement> parseExpressionStatement(const std::vector<Token>& tokenList, int& index, const TokenType& stopType = TokenType::SEMICOLON);
     
     int getPrecedence(const TokenType& type, const uint8_t& mode = 0);
-    std::unique_ptr<Expression> parseExpression(const std::vector<Token>& tokenList, int& index, uint8_t minPrecedence = 0);
+    std::unique_ptr<Expression> parseExpression(const std::vector<Token>& tokenList, int& index, int minPrecedence = 0);
     std::unique_ptr<Expression> parsePrefixExpression(const std::vector<Token>& tokenList, int& index);
     std::unique_ptr<Expression> parsePostfixExpression(const std::vector<Token>& tokenList, int& index, std::unique_ptr<Expression> left);
 
 
+    
 };
-
-
 
 #endif
