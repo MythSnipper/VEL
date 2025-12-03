@@ -1,6 +1,7 @@
 #include <main.hpp>
 
-#define LEXER_DEBUG
+#define PRINT_SOURCE
+//#define LEXER_DEBUG
 #define PARSER_DEBUG
 
 int main(int argc, char* argv[]){
@@ -34,18 +35,18 @@ int main(int argc, char* argv[]){
     std::string source = read_file(input_filename);
     input_file.close();
 
-    std::cout << "Source Code: \n" << "\t-----------------------------\n";
-    std::cout << source;
-    std::cout << "\t-----------------------------\n";
-
+    #ifdef PRINT_SOURCE
+        std::cout << "Source Code: \n" << "\t-----------------------------\n";
+        std::cout << source;
+        std::cout << "\t-----------------------------\n";
+    #endif
 
 
     //Lexer
-    std::cout << "Lexer:\n";
-
     std::vector<Token> tokens = Lexer::tokenize(source);
 
     #ifdef LEXER_DEBUG
+        std::cout << "Lexer debug:\n";
         std::cout << "Tokens: \n";
         for(Token t : tokens){
             std::cout << Lexer::KeywordToString(t.type) << '|' << t.text << '|' << t.value << ' ' << t.valuef << "       " << t.line << ' ' << t.col << '\n';
@@ -53,11 +54,12 @@ int main(int argc, char* argv[]){
     #endif
 
     //Parser
-    std::cout << "Parser:\n";
-
     Program AST = Parser::constructAST(tokens);
-    
-    AST.print();
+
+    #ifdef PARSER_DEBUG
+        std::cout << "Parser:\n";
+        AST.print();
+    #endif
     
 
     /*

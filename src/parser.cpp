@@ -276,8 +276,6 @@ namespace Parser{
         std::unique_ptr<Assembly> AssemblyNode = std::make_unique<Assembly>(Assembly{});
         AssemblyNode->Text = getToken(tokenList, index).text;
 
-        std::cout << "\tAssembly parsed\nText: " << AssemblyNode->Text << "\n";
-
         advance(tokenList, index, 1); //skip assembly
         return AssemblyNode;
     }
@@ -330,8 +328,6 @@ namespace Parser{
         //Function body
         FunctionNode->Body = parseStatement(tokenList, index);
 
-        std::cout << "\tFunction parsed\nReturnType: " << (int)FunctionNode->ReturnType.builtinType << "\nId: " << FunctionNode->Id->Text << "\n";
-
         return FunctionNode;
     }
 
@@ -361,8 +357,6 @@ namespace Parser{
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "\n";
             throw std::runtime_error("Invalid token in parseGlobalVariableDeclaration: Expected assignment operator or semicolon");
         }
-
-        std::cout << "\tGlobalVariableDeclaration parsed\nTypename: " << (int)GlobalVariableDeclarationNode->Typename.builtinType << "\nId: " << GlobalVariableDeclarationNode->Id->Text << "\n";
 
         return GlobalVariableDeclarationNode;
     }
@@ -395,8 +389,6 @@ namespace Parser{
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "\n";
             throw std::runtime_error("Invalid token in parseVariableDeclaration: Expected assignment operator or semicolon");
         }
-
-        std::cout << "\tVariableDeclaration parsed\nTypename: " << (int)VariableDeclarationNode->Typename.builtinType << "\nId: " << VariableDeclarationNode->Id->Text << "\n";
 
         return VariableDeclarationNode;
     }
@@ -964,7 +956,4 @@ namespace Parser{
         }
         return left;
     }
-
-    
-
 };

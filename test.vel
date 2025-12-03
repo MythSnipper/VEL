@@ -1,10 +1,11 @@
 string vell = "i love vel";
-int32 main(char oah){
+int8 naps = -9999999999999999999;
+int32 _start(char oah){
     float64 oah2 = oah;
     int16 vel3;
     vel3 = --vel3++;
     
-    int16 veluwu = 998;
+    int16 veluwu = -9;
     veluwu $$ vel3;
 
     for(int32 i=0,i<30,i++){

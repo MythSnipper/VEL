@@ -123,7 +123,7 @@ struct Type{
 
 struct ASTNode{
     virtual ~ASTNode(){};
-    virtual void print(int level = 0) const{};
+    virtual void print(int) const{};
 };
 
 struct Declaration : virtual ASTNode{};
@@ -180,7 +180,7 @@ struct Call : Expression{
         std::cout << "Call: \n";
         printIndent(level+1);
         Id->print();
-        for(int i=0;i<Arguments.size();i++){
+        for(uint32_t i=0;i<Arguments.size();i++){
             printIndent(level+1);
             std::cout << "Argument " << i+1 << ": \n";
             Arguments[i]->print(level+2);
@@ -243,7 +243,7 @@ struct Program : ASTNode{
     void print(int level = 0) const override{
         printIndent(level);
         std::cout << "Program: \n";
-        for(int i=0;i<TopLevel.size();i++){
+        for(uint32_t i=0;i<TopLevel.size();i++){
             printIndent(level+1);
             std::cout << "Declaration " << i+1 << ": \n";
             TopLevel[i]->print(level+2);
@@ -257,7 +257,7 @@ struct Block : Statement{
     void print(int level = 0) const override{
         printIndent(level);
         std::cout << "Block: \n";
-        for(int i=0;i<Statements.size();i++){
+        for(uint32_t i=0;i<Statements.size();i++){
             printIndent(level+1);
             std::cout << "Statement " << i+1 << ": \n";
             Statements[i]->print(level+2);
@@ -300,7 +300,7 @@ struct Function : Declaration{
         std::cout << toString(ReturnType.builtinType);
         std::cout << "\n";
         Id->print(level + 1);
-        for(int i=0;i<Parameters.size();i++){
+        for(uint32_t i=0;i<Parameters.size();i++){
             printIndent(level+1);
             std::cout << "Parameter " << i+1 << ": \n";
             printIndent(level+2);

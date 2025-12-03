@@ -1,7 +1,7 @@
 
 
 
-
+OPTIMIZE ?= 0
 
 
 
@@ -100,7 +100,7 @@ linux: $(OBJ_LIB)
 		fi; \
 		echo -e "$(CYAN)Compiling $$src -> $$obj$(RESET)"; \
 		mkdir -p $$(dirname $$obj); \
-		time $(CXX) $(CXXFLAGS) -c $$src -o $$obj; \
+		time $(CXX) $(CXXFLAGS) -O$(OPTIMIZE) -c $$src -o $$obj; \
 	done
 
 linux_fast: $(OBJ_LIB)
@@ -153,7 +153,7 @@ win: $(OBJ_LIB_WIN)
 		fi; \
 		echo -e "$(CYAN)Compiling $$src -> $$obj$(RESET)"; \
 		mkdir -p $$(dirname $$obj); \
-		time $(CXX_WIN) $(CXXFLAGS_WIN) -c $$src -o $$obj; \
+		time $(CXX_WIN) $(CXXFLAGS_WIN) -O$(OPTIMIZE) -c $$src -o $$obj; \
 	done
 
 win_fast: $(OBJ_LIB_WIN)

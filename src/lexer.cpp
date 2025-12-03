@@ -479,17 +479,57 @@ namespace Lexer{
                 }
                 else{ //return right away
                     TokenType type = TokenType::FLOAT_LITERAL;
-                    return {type, current_text, 0, std::stod("0" + current_text_no_underscore), startline, startcol};
+                    double valuef;
+                    try{
+                        valuef = std::stod("0" + current_text_no_underscore);
+                    }
+                    catch(...){
+                        std::cout << "Text: 0" << current_text_no_underscore;
+                        throw std::runtime_error("Failed to convert string to float in scanNumLiteral");
+                    }
+                    return {type, current_text, 0, valuef, startline, startcol};
                 }
             }
             else{
                 if(isFloat){
                     TokenType type = TokenType::FLOAT_LITERAL;
-                    return {type, current_text, 0, (current_text_no_underscore.empty()) ? 0 : std::stod(current_text_no_underscore), startline, startcol};
+                    double valuef;
+                    try{
+                        valuef = std::stod(current_text_no_underscore);
+                    }
+                    catch(const std::invalid_argument& e){
+                        std::cout << "Text: " << current_text_no_underscore;
+                        throw std::runtime_error("Failed to convert string to float in scanNumLiteral: invalid string");
+                    }
+                    catch(const std::out_of_range& e){
+                        std::cout << "Text: " << current_text_no_underscore;
+                        throw std::runtime_error("Failed to convert string to float in scanNumLiteral: out of range");
+                    }
+                    catch(...){
+                        std::cout << "Text: " << current_text_no_underscore;
+                        throw std::runtime_error("Failed to convert string to float in scanNumLiteral: unknown");
+                    }
+                    return {type, current_text, 0, (current_text_no_underscore.empty()) ? 0 : valuef, startline, startcol};
                 }
                 else{
                     TokenType type = TokenType::INT_LITERAL;
-                    return {type, current_text, (current_text_no_underscore.empty()) ? 0 : std::stoll(current_text_no_underscore), 0, startline, startcol};
+                    int64_t valuei;
+                    try{
+                        valuei = std::stoll(current_text_no_underscore);
+                    }
+                    catch(const std::invalid_argument& e){
+                        std::cout << "Text: " << current_text_no_underscore;
+                        throw std::runtime_error("Failed to convert string to int in scanNumLiteral: invalid string");
+                    }
+                    catch(const std::out_of_range& e){
+                        std::cout << "Text: " << current_text_no_underscore;
+                        throw std::runtime_error("Failed to convert string to int in scanNumLiteral: out of range");
+                    }
+                    catch(...){
+                        std::cout << "Text: " << current_text_no_underscore;
+                        throw std::runtime_error("Failed to convert string to int in scanNumLiteral: unknown");
+                    }
+                    return {type, current_text, (current_text_no_underscore.empty()) ? 0 : valuei, 0, startline, startcol};
                 }
             }
             advance(source, i, line, col);
@@ -498,10 +538,42 @@ namespace Lexer{
             return {TokenType::INVALID_TOKEN, "INVALID", 0, 0, startline, startcol};
         }
         if(isFloat){
-            double value = (current_text_no_underscore.empty()) ? 0.0 : std::stod(current_text_no_underscore);
+            double valuef;
+            try{
+                valuef = std::stod(current_text_no_underscore);
+            }
+            catch(const std::invalid_argument& e){
+                std::cout << "Text: " << current_text_no_underscore;
+                throw std::runtime_error("Failed to convert string to float in scanNumLiteral: invalid string");
+            }
+            catch(const std::out_of_range& e){
+                std::cout << "Text: " << current_text_no_underscore;
+                throw std::runtime_error("Failed to convert string to float in scanNumLiteral: out of range");
+            }
+            catch(...){
+                std::cout << "Text: " << current_text_no_underscore;
+                throw std::runtime_error("Failed to convert string to float in scanNumLiteral: unknown");
+            }
+            double value = (current_text_no_underscore.empty()) ? 0.0 : valuef;
             return {TokenType::FLOAT_LITERAL, current_text, 0, value, startline, startcol};
         } else {
-            int64_t value = (current_text_no_underscore.empty()) ? 0 : std::stoll(current_text_no_underscore);
+            int64_t valuei;
+            try{
+                valuei = std::stoll(current_text_no_underscore);
+            }
+            catch(const std::invalid_argument& e){
+                std::cout << "Text: " << current_text_no_underscore;
+                throw std::runtime_error("Failed to convert string to int in scanNumLiteral: invalid string");
+            }
+            catch(const std::out_of_range& e){
+                std::cout << "Text: " << current_text_no_underscore;
+                throw std::runtime_error("Failed to convert string to int in scanNumLiteral: out of range");
+            }
+            catch(...){
+                std::cout << "Text: " << current_text_no_underscore;
+                throw std::runtime_error("Failed to convert string to int in scanNumLiteral: unknown");
+            }
+            int64_t value = (current_text_no_underscore.empty()) ? 0 : valuei;
             return {TokenType::INT_LITERAL, current_text, value, 0, startline, startcol};
         }
     }
