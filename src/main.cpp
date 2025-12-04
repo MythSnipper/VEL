@@ -60,6 +60,8 @@ int main(int argc, char* argv[]){
         std::cout << "Parser:\n";
         AST.print();
     #endif
+
+    Analyzer::analyze(AST);
     
 
     /*

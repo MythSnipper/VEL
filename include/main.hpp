@@ -8,7 +8,8 @@
 
 #include <lexer.hpp>
 #include <parser.hpp>
- 
+#include <analyzer.hpp>
+
 std::string read_file(const std::string& path);
 
 

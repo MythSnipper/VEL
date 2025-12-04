@@ -120,6 +120,37 @@ struct Type{
 };
 
 //-----------------------------------------------------------------------------------------------------------------------
+//Analyzer stuff
+enum class SymbolType{
+    Variable,
+    Function,
+    Parameter,
+};
+struct Symbol{
+    SymbolType Segregator;
+    std::string Id;
+    BuiltinType Type;
+
+    //may be used for later
+    ASTNode* decl = nullptr;
+};
+struct SymbolTable{
+    std::unordered_map<std::string, Symbol> Symbols;
+    SymbolTable* parent = nullptr; //links to outer symbol table
+};
+/* nullptr <- Program <- Function
+                            ^
+                            | <- Block
+                            | <- For
+                            | <- If(single statement)
+                            | <- While(single statement)
+                            | 
+                            |
+                            |
+
+*/
+
+//-----------------------------------------------------------------------------------------------------------------------
 
 struct ASTNode{
     virtual ~ASTNode(){};
@@ -240,6 +271,8 @@ struct AssignmentOp : Expression{
 struct Program : ASTNode{
     std::vector<std::unique_ptr<Declaration>> TopLevel;
 
+    std::unique_ptr<SymbolTable> SymbolTable;
+
     void print(int level = 0) const override{
         printIndent(level);
         std::cout << "Program: \n";
@@ -253,6 +286,8 @@ struct Program : ASTNode{
 
 struct Block : Statement{
     std::vector<std::unique_ptr<Statement>> Statements;
+
+    std::unique_ptr<SymbolTable> SymbolTable;
 
     void print(int level = 0) const override{
         printIndent(level);
@@ -291,6 +326,8 @@ struct Function : Declaration{
     std::unique_ptr<Identifier> Id;
     std::vector<std::pair<Type, std::unique_ptr<Identifier>>> Parameters; //Typename, Identifier
     std::unique_ptr<Statement> Body;
+
+    std::unique_ptr<SymbolTable> SymbolTable;
 
     void print(int level = 0) const override{
         printIndent(level);
@@ -368,6 +405,8 @@ struct ElseIf{
     std::unique_ptr<Expression> Condition;
     std::unique_ptr<Statement> Body; //Statement or Block
 
+    std::unique_ptr<SymbolTable> SymbolTable; //only if Body is not a Block
+
     void print(int level = 0) const{
         printIndent(level);
         std::cout << "ElseIf: \n";
@@ -382,7 +421,11 @@ struct If : Statement {
     std::vector<ElseIf> ElseIfs;
     std::unique_ptr<Statement> Else; //Statement or Block or nullptr
 
+    std::unique_ptr<SymbolTable> SymbolTableIf; //only if Body is not a Block
 
+    std::unique_ptr<SymbolTable> SymbolTableElse; //only if Else is not a Block
+
+    
     void print(int level = 0) const override{
         printIndent(level);
         std::cout << "If: \n";
@@ -407,6 +450,9 @@ struct While : Statement{
     std::unique_ptr<Expression> Condition;
     std::unique_ptr<Statement> Body; //Statement or Block or nullptr
 
+    std::unique_ptr<SymbolTable> SymbolTable; //only if Body is not a Block
+
+
     void print(int level = 0) const override{
         printIndent(level);
         std::cout << "While: \n";
@@ -424,6 +470,8 @@ struct For : Statement{
     std::unique_ptr<Expression> Condition; //Expression or nullptr
     std::unique_ptr<Expression> Modifier; //Expression or nullptr
     std::unique_ptr<Statement> Body; //Statement or Block or nullptr
+
+    std::unique_ptr<SymbolTable> SymbolTable;
 
     void print(int level = 0) const override{
         printIndent(level);
@@ -502,6 +550,6 @@ namespace Parser{
 
 
     
-};
+}
 
 #endif
