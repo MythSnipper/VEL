@@ -61,8 +61,8 @@ OBJ = $(shell find obj/linux -type f)
 OBJ_WIN = $(shell find obj/windows -type f)
 
 #final executable targets
-TARGET := build/main
-TARGET_WIN := build/main.exe
+TARGET := build/velc
+TARGET_WIN := build/velc.exe
 
 #debug or no
 DEBUG ?= 0

@@ -393,14 +393,16 @@ namespace Lexer{
 
             //invalid characters
             else{
-                std::cout << "Invalid character: " << current_char << " ";
+                std::cout << "Invalid character: \'" << current_char << "\'\n";
+                std::cout << "Next character: ";
                 if(next_char != '\0'){
-                    std::cout << next_char;
+                    std::cout << '\'' << next_char << "\'\n";
                 }
                 else{
-                    std::cout << "null";
+                    std::cout << "null\n";
                 }
-                std::cout << std::endl;
+                std::cout << "velc: Lexer: Invalid character in source\n";
+                exit(1);
                 advance(source, i, line, col);
             }
         }
@@ -485,7 +487,8 @@ namespace Lexer{
                     }
                     catch(...){
                         std::cout << "Text: 0" << current_text_no_underscore;
-                        throw std::runtime_error("Failed to convert string to float in scanNumLiteral");
+                        std::cout << "velc: Lexer: Failed to convert string to float in scanNumLiteral\n";
+                        exit(1);
                     }
                     return {type, current_text, 0, valuef, startline, startcol};
                 }
@@ -499,15 +502,18 @@ namespace Lexer{
                     }
                     catch(const std::invalid_argument& e){
                         std::cout << "Text: " << current_text_no_underscore;
-                        throw std::runtime_error("Failed to convert string to float in scanNumLiteral: invalid string");
+                        std::cout << "velc: Lexer: Failed to convert string to float in scanNumLiteral: invalid string\n";
+                        exit(1);
                     }
                     catch(const std::out_of_range& e){
                         std::cout << "Text: " << current_text_no_underscore;
-                        throw std::runtime_error("Failed to convert string to float in scanNumLiteral: out of range");
+                        std::cout << "velc: Lexer: Failed to convert string to float in scanNumLiteral: out of range\n";
+                        exit(1);
                     }
                     catch(...){
                         std::cout << "Text: " << current_text_no_underscore;
-                        throw std::runtime_error("Failed to convert string to float in scanNumLiteral: unknown");
+                        std::cout << "velc: Lexer: Failed to convert string to float in scanNumLiteral: unknown\n";
+                        exit(1);
                     }
                     return {type, current_text, 0, (current_text_no_underscore.empty()) ? 0 : valuef, startline, startcol};
                 }
@@ -519,15 +525,18 @@ namespace Lexer{
                     }
                     catch(const std::invalid_argument& e){
                         std::cout << "Text: " << current_text_no_underscore;
-                        throw std::runtime_error("Failed to convert string to int in scanNumLiteral: invalid string");
+                        std::cout << "velc: Lexer: Failed to convert string to int in scanNumLiteral: invalid string\n";
+                        exit(1);
                     }
                     catch(const std::out_of_range& e){
                         std::cout << "Text: " << current_text_no_underscore;
-                        throw std::runtime_error("Failed to convert string to int in scanNumLiteral: out of range");
+                        std::cout << "velc: Lexer: Failed to convert string to int in scanNumLiteral: out of range\n";
+                        exit(1);
                     }
                     catch(...){
                         std::cout << "Text: " << current_text_no_underscore;
-                        throw std::runtime_error("Failed to convert string to int in scanNumLiteral: unknown");
+                        std::cout << "velc: Lexer: Failed to convert string to int in scanNumLiteral: unknown\n";
+                        exit(1);
                     }
                     return {type, current_text, (current_text_no_underscore.empty()) ? 0 : valuei, 0, startline, startcol};
                 }
@@ -544,15 +553,18 @@ namespace Lexer{
             }
             catch(const std::invalid_argument& e){
                 std::cout << "Text: " << current_text_no_underscore;
-                throw std::runtime_error("Failed to convert string to float in scanNumLiteral: invalid string");
+                std::cout << "velc: Lexer: Failed to convert string to float in scanNumLiteral: invalid string\n";
+                exit(1);
             }
             catch(const std::out_of_range& e){
                 std::cout << "Text: " << current_text_no_underscore;
-                throw std::runtime_error("Failed to convert string to float in scanNumLiteral: out of range");
+                std::cout << "velc: Lexer: Failed to convert string to float in scanNumLiteral: out of range\n";
+                exit(1);
             }
             catch(...){
                 std::cout << "Text: " << current_text_no_underscore;
-                throw std::runtime_error("Failed to convert string to float in scanNumLiteral: unknown");
+                std::cout << "velc: Lexer: Failed to convert string to float in scanNumLiteral: unknown\n";
+                exit(1);
             }
             double value = (current_text_no_underscore.empty()) ? 0.0 : valuef;
             return {TokenType::FLOAT_LITERAL, current_text, 0, value, startline, startcol};
@@ -563,15 +575,18 @@ namespace Lexer{
             }
             catch(const std::invalid_argument& e){
                 std::cout << "Text: " << current_text_no_underscore;
-                throw std::runtime_error("Failed to convert string to int in scanNumLiteral: invalid string");
+                std::cout << "velc: Lexer: Failed to convert string to int in scanNumLiteral: invalid string\n";
+                exit(1);
             }
             catch(const std::out_of_range& e){
                 std::cout << "Text: " << current_text_no_underscore;
-                throw std::runtime_error("Failed to convert string to int in scanNumLiteral: out of range");
+                std::cout << "velc: Lexer: Failed to convert string to int in scanNumLiteral: out of range\n";
+                exit(1);
             }
             catch(...){
                 std::cout << "Text: " << current_text_no_underscore;
-                throw std::runtime_error("Failed to convert string to int in scanNumLiteral: unknown");
+                std::cout << "velc: Lexer: Failed to convert string to int in scanNumLiteral: unknown\n";
+                exit(1);
             }
             int64_t value = (current_text_no_underscore.empty()) ? 0 : valuei;
             return {TokenType::INT_LITERAL, current_text, value, 0, startline, startcol};

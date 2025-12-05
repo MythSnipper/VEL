@@ -1,28 +1,4 @@
-string vell = "i love vel";
-int8 naps = 999999999999999999;
-int32 _start(char oah){
-    float64 oah2 = oah;
-    int16 vel3;
-    vel3 = --vel3++;
+
+void _start(){
     
-    int16 veluwu = -9;
-    veluwu $$ vel3;
-
-    for(int32 i=0,i<30,i++){
-        vel_print(vell);
-    }
-
-    if(oah2 ^^ vel3 >= 'e'){
-        vel_print(vell);
-    }
-    else if(oah2 < 544)
-
-    if(vel3 >= +33*2+1+0.5-0.5);else if(veluwu);else{while(hello);
-        return oah2++++++++;
-    }
-    else{
-        for(,hello,)vel_print();
-    }
-;
-    return oah2;
 }

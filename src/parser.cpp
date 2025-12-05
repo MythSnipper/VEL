@@ -290,7 +290,8 @@ namespace Parser{
 
         if(!isType(getToken(tokenList, index), TokenType::LPAREN)){ //Check if the token is LPAREN
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-            throw std::runtime_error("Invalid token in parseFunction: Expected Left Parenthesis");
+            std::cout << "velc: Parser: Invalid token in parseFunction: Expected Left Parenthesis\n";
+            exit(1);
         }
         advance(tokenList, index, 1); //Skip LPAREN
 
@@ -313,7 +314,8 @@ namespace Parser{
                 }
                 else{
                     std::cout << "Info:\nCurrent token: " << currentToken.text << "Next token: " << nextToken.text << "\n";
-                    throw std::runtime_error("Invalid token in parseFunction: Expected typename and identifier");
+                    std::cout << "velc: Parser: Invalid token in parseFunction: Expected typename and identifier\n";
+                    exit(1);
                 }
             }
         }
@@ -321,7 +323,8 @@ namespace Parser{
         //skip RPAREN
         if(!isType(getToken(tokenList, index), TokenType::RPAREN)){ //Check if the token is RPAREN
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-            throw std::runtime_error("Invalid token in parseFunction: Expected Right Parenthesis");
+            std::cout << "velc: Parser: Invalid token in parseFunction: Expected Right Parenthesis\n";
+            exit(1);
         }
         advance(tokenList, index, 1); //skip RPAREN
 
@@ -345,7 +348,8 @@ namespace Parser{
             //skip Semicolon
             if(!isType(getToken(tokenList, index), TokenType::SEMICOLON)){ //Check if the token is SEMICOLON
                 std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-                throw std::runtime_error("Invalid token in parseGlobalVariableDeclaration: Expected Semicolon");
+                std::cout << "velc: Parser: Invalid token in parseGlobalVariableDeclaration: Expected Semicolon\n";
+                exit(1);
             }
             advance(tokenList, index, 1); //skip SEMICOLON
         }
@@ -355,7 +359,8 @@ namespace Parser{
         }
         else{
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "\n";
-            throw std::runtime_error("Invalid token in parseGlobalVariableDeclaration: Expected assignment operator or semicolon");
+            std::cout << "velc: Parser: Invalid token in parseGlobalVariableDeclaration: Expected assignment operator or semicolon\n";
+            exit(1);
         }
 
         return GlobalVariableDeclarationNode;
@@ -375,9 +380,9 @@ namespace Parser{
             //skip stop token
             if(!isType(getToken(tokenList, index), stopType)){ //Check if the token is stop token
                 std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-                std::string errorstr = "Invalid token in parseVariableDeclaration: Expected ";
-                errorstr += ((stopType == TokenType::SEMICOLON) ? "Semicolon" : "Stop token");
-                throw std::runtime_error(errorstr.c_str());
+                std::cout << "Invalid token in parseVariableDeclaration: Expected ";
+                std::cout << ((stopType == TokenType::SEMICOLON) ? "Semicolon" : "Stop token");
+                exit(1);
             }
             advance(tokenList, index, 1); //skip stop token
         }
@@ -387,7 +392,8 @@ namespace Parser{
         }
         else{
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "\n";
-            throw std::runtime_error("Invalid token in parseVariableDeclaration: Expected assignment operator or semicolon");
+            std::cout << "velc: Parser: Invalid token in parseVariableDeclaration: Expected assignment operator or semicolon\n";
+            exit(1);
         }
 
         return VariableDeclarationNode;
@@ -400,7 +406,8 @@ namespace Parser{
         //skip LBRACE
         if(!isType(getToken(tokenList, index), TokenType::LBRACE)){ //Check if the token is LBRACE
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-            throw std::runtime_error("Invalid token in parseBlock: Expected Left Bracket");
+            std::cout << "velc: Parser: Invalid token in parseBlock: Expected Left Bracket\n";
+            exit(1);
         }
         advance(tokenList, index, 1); //skip LBRACE
 
@@ -412,7 +419,8 @@ namespace Parser{
         //if while loop exited with EOF, error because no closing bracket
         if(isType(getToken(tokenList, index), TokenType::END_OF_FILE)){
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-            throw std::runtime_error("Invalid token in parseBlock: Expected Right Bracket");
+            std::cout << "velc: Parser: Invalid token in parseBlock: Expected Right Bracket\n";
+            exit(1);
         }
 
         advance(tokenList, index, 1); //skip RBRACE
@@ -465,7 +473,8 @@ namespace Parser{
         //skip semicolon
         if(!isType(getToken(tokenList, index), TokenType::SEMICOLON)){ //Check if the token is SEMICOLON
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-            throw std::runtime_error("Invalid token in parseReturn: Expected Semicolon");
+            std::cout << "velc: Parser: Invalid token in parseReturn: Expected Semicolon\n";
+            exit(1);
         }
         advance(tokenList, index, 1); //skip SEMICOLON
 
@@ -479,7 +488,8 @@ namespace Parser{
         //skip LPAREN
         if(!isType(getToken(tokenList, index), TokenType::LPAREN)){ //Check if the token is LPAREN
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-            throw std::runtime_error("Invalid token in parseIf: Expected Left Parenthesis when parsing if");
+            std::cout << "velc: Parser: Invalid token in parseIf: Expected Left Parenthesis when parsing if\n";
+            exit(1);
         }
         advance(tokenList, index, 1); //skip LPAREN
 
@@ -489,7 +499,8 @@ namespace Parser{
         //skip RPAREN
         if(!isType(getToken(tokenList, index), TokenType::RPAREN)){ //Check if the token is RPAREN
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-            throw std::runtime_error("Invalid token in parseIf: Expected Right Parenthesis when parsing if");
+            std::cout << "velc: Parser: Invalid token in parseIf: Expected Right Parenthesis when parsing if\n";
+            exit(1);
         }
         advance(tokenList, index, 1); //skip RPAREN
 
@@ -505,7 +516,8 @@ namespace Parser{
             //skip LPAREN
             if(!isType(getToken(tokenList, index), TokenType::LPAREN)){ //Check if the token is LPAREN
                 std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-                throw std::runtime_error("Invalid token in parseIf: Expected Left Parenthesis when parsing elseif");
+                std::cout << "velc: Parser: Invalid token in parseIf: Expected Left Parenthesis when parsing elseif\n";
+                exit(1);
             }
             advance(tokenList, index, 1); //skip LPAREN
 
@@ -515,7 +527,8 @@ namespace Parser{
             //skip RPAREN
             if(!isType(getToken(tokenList, index), TokenType::RPAREN)){ //Check if the token is RPAREN
                 std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-                throw std::runtime_error("Invalid token in parseIf: Expected Right Parenthesis when parsing elseif");
+                std::cout << "velc: Parser: Invalid token in parseIf: Expected Right Parenthesis when parsing elseif\n";
+                exit(1);
             }
             advance(tokenList, index, 1); //skip RPAREN
 
@@ -548,7 +561,8 @@ namespace Parser{
         //skip LPAREN
         if(!isType(getToken(tokenList, index), TokenType::LPAREN)){ //Check if the token is LPAREN
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-            throw std::runtime_error("Invalid token in parseWhile: Expected Left Parenthesis");
+            std::cout << "velc: Parser: Invalid token in parseWhile: Expected Left Parenthesis\n";
+            exit(1);
         }
         advance(tokenList, index, 1); //skip LPAREN
 
@@ -558,7 +572,8 @@ namespace Parser{
         //skip RPAREN
         if(!isType(getToken(tokenList, index), TokenType::RPAREN)){ //Check if the token is RPAREN
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-            throw std::runtime_error("Invalid token in parseWhile: Expected Right Parenthesis");
+            std::cout << "velc: Parser: Invalid token in parseWhile: Expected Right Parenthesis\n";
+            exit(1);
         }
         advance(tokenList, index, 1); //skip RPAREN
 
@@ -574,7 +589,8 @@ namespace Parser{
         //skip LPAREN
         if(!isType(getToken(tokenList, index), TokenType::LPAREN)){ //Check if the token is LPAREN
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-            throw std::runtime_error("Invalid token in parseFor: Expected Left Parenthesis");
+            std::cout << "velc: Parser: Invalid token in parseFor: Expected Left Parenthesis\n";
+            exit(1);
         }
         advance(tokenList, index, 1); //skip LPAREN
 
@@ -587,7 +603,8 @@ namespace Parser{
             //skip COMMA
             if(!isType(getToken(tokenList, index), TokenType::COMMA)){ //Check if the token is COMMA
                 std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-                throw std::runtime_error("Invalid token in parseFor: Expected Comma after initializer");
+                std::cout << "velc: Parser: Invalid token in parseFor: Expected Comma after initializer\n";
+                exit(1);
             }
             advance(tokenList, index, 1); //skip COMMA
         }
@@ -596,7 +613,8 @@ namespace Parser{
         //skip COMMA
         if(!isType(getToken(tokenList, index), TokenType::COMMA)){ //Check if the token is COMMA
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-            throw std::runtime_error("Invalid token in parseFor: Expected Comma after condition");
+            std::cout << "velc: Parser: Invalid token in parseFor: Expected Comma after condition\n";
+            exit(1);
         }
         advance(tokenList, index, 1); //skip COMMA
 
@@ -606,7 +624,8 @@ namespace Parser{
         //skip RPAREN
         if(!isType(getToken(tokenList, index), TokenType::RPAREN)){ //Check if the token is RPAREN
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-            throw std::runtime_error("Invalid token in parseWhile: Expected Right Parenthesis");
+            std::cout << "velc: Parser: Invalid token in parseWhile: Expected Right Parenthesis\n";
+            exit(1);
         }
         advance(tokenList, index, 1); //skip RPAREN
 
@@ -623,9 +642,9 @@ namespace Parser{
         //skip stop token
         if(!isType(getToken(tokenList, index), stopType)){ //Check if the token is stop token
             std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-            std::string errorstr = "Invalid token in parseExpressionStatement: Expected ";
-            errorstr += ((stopType == TokenType::SEMICOLON) ? "Semicolon" : "Stop token");
-            throw std::runtime_error(errorstr.c_str());
+            std::cout << "Invalid token in parseExpressionStatement: Expected ";
+            std::cout << ((stopType == TokenType::SEMICOLON) ? "Semicolon" : "Stop token");
+            exit(1);
         }
         advance(tokenList, index, 1); //skip stop token
 
@@ -794,7 +813,8 @@ namespace Parser{
 
                 default:
                 std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-                throw std::runtime_error("Invalid token type in parseExpression: Expected Binary Operator type when converting to a binary operator");
+                std::cout << "velc: Parser: Invalid token type in parseExpression: Expected Binary Operator type when converting to a binary operator\n";
+                exit(1);
             };
 
 
@@ -830,7 +850,8 @@ namespace Parser{
                 break;
                 default:
                 std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-                throw std::runtime_error("Invalid token type in parsePrefixExpression: Expected Literal type when constructing literalNode");
+                std::cout << "velc: Parser: Invalid token type in parsePrefixExpression: Expected Literal type when constructing literalNode\n";
+                exit(1);
             }
             return literalNode;
         }
@@ -848,7 +869,8 @@ namespace Parser{
             //skip RPAREN
             if(!isType(getToken(tokenList, index), TokenType::RPAREN)){ //Check if the token is RPAREN
                 std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-                throw std::runtime_error("Invalid token in parsePrefixExpression: Expected Right Parenthesis");
+                std::cout << "velc: Parser: Invalid token in parsePrefixExpression: Expected Right Parenthesis\n";
+                exit(1);
             }
             advance(tokenList, index, 1); //skip RPAREN
 
@@ -882,7 +904,8 @@ namespace Parser{
                 break;
                 default:
                 std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-                throw std::runtime_error("Invalid token type in parsePrefixExpression: Expected Prefix Operator type when converting to a prefix operator");
+                std::cout << "velc: Parser: Invalid token type in parsePrefixExpression: Expected Prefix Operator type when converting to a prefix operator\n";
+                exit(1);
             };
 
             prefixNode->Expr = parseExpression(tokenList, index, precedence);
@@ -890,7 +913,8 @@ namespace Parser{
         }
 
         std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-        throw std::runtime_error("Unexpected token in parsePrefixExpression: no valid token types recognized");
+        std::cout << "velc: Parser: Unexpected token in parsePrefixExpression: no valid token types recognized\n";
+        exit(1);
     }
 
     std::unique_ptr<Expression> parsePostfixExpression(const std::vector<Token>& tokenList, int& index, std::unique_ptr<Expression> left){
@@ -921,7 +945,8 @@ namespace Parser{
                 //skip RPAREN
                 if(!isType(getToken(tokenList, index), TokenType::RPAREN)){ //Check if the token is RPAREN
                     std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-                    throw std::runtime_error("Invalid token in parsePostfixExpression: Expected Right Parenthesis when parsing function call arguments");
+                    std::cout << "velc: Parser: Invalid token in parsePostfixExpression: Expected Right Parenthesis when parsing function call arguments\n";
+                    exit(1);
                 }
                 advance(tokenList, index, 1); //skip RPAREN
 
@@ -945,7 +970,8 @@ namespace Parser{
                     break;
                     default:
                     std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
-                    throw std::runtime_error("Invalid token type in parsePostfixExpression: Expected Postfix Operator type when converting to a postfix operator");
+                    std::cout << "velc: Parser: Invalid token type in parsePostfixExpression: Expected Postfix Operator type when converting to a postfix operator\n";
+                    exit(1);
                 };
 
 

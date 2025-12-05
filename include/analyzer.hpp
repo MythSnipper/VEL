@@ -16,7 +16,7 @@
 
 namespace Analyzer{
     void analyze(Program& AST);
-    void constructGlobalSymbolTable(Program& AST);
+    void checkGlobalSymbols(Program& AST);
     
 
 
@@ -26,4 +26,4 @@ namespace Analyzer{
 
 
 
-#endif;
+#endif
