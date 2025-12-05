@@ -57,12 +57,13 @@ namespace Analyzer{
                 //handle global variable declarations
                 std::string id = globalVar->Id->Text;
                 if(AST.Table->Symbols.find(id) != AST.Table->Symbols.end()){
-                    std::cout << "Identifier: " << id << "\n";
-                    throw std::runtime_error("checkGlobalSymbols: Global variable redeclared");
+                    std::cout << "velc: Semantic Analyzer: Global variable \"" << id << "\" redeclared\n";
+                    exit(1);
                 }
                 else{
                     if(!globalVar->Typename.isBuiltin){
-                        throw std::runtime_error("Non builtin variable type cannot be handled in checkGlobalSymbols");
+                        std::cout << "velc: Semantic Analyzer: Non builtin variable type cannot be handled\n";
+                        exit(1);
                     }
                     BuiltinType newType = {globalVar->Typename.builtinType};
                     Symbol newSymbol = {SymbolType::Variable, id, newType};
@@ -74,12 +75,13 @@ namespace Analyzer{
                 //handle functions
                 std::string id = func->Id->Text;
                 if(AST.Table->Symbols.find(id) != AST.Table->Symbols.end()){
-                    std::cout << "Identifier: " << id << "\n";
-                    throw std::runtime_error("checkGlobalSymbols: Function redeclared");
+                    std::cout << "velc: Semantic Analyzer: Function \"" << id << "\" redeclared\n";
+                    exit(1);
                 }
                 else{
                     if(!func->ReturnType.isBuiltin){
-                        throw std::runtime_error("Non builtin function return type cannot be handled in checkGlobalSymbols");
+                        std::cout << "velc: Semantic Analyzer: Non builtin function return type cannot be handled\n";
+                        exit(1);
                     }
                     BuiltinType newType = {func->ReturnType.builtinType};
                     Symbol newSymbol = {SymbolType::Function, id, newType};

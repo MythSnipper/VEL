@@ -22,11 +22,14 @@ struct CompilerOptions{
     std::string output_filename;
 
     std::vector<std::string> includePaths;
-    
+
     std::string source;
     std::string sourceAssembly;
     std::vector<Token> tokens;
     Program AST;
+
+    //for timing
+    
 
     //options
     bool timeExecution = false;
@@ -40,6 +43,7 @@ struct CompilerOptions{
     bool deleteIntermediateFiles = true;
     //used only for argv parsing
     bool expectOutputFile = false;
+    bool expectIncludePath = false;
 
 };
 

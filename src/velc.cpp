@@ -17,7 +17,7 @@ const std::string HELPTEXT =
 "  -S                       Preprocess and compile only.\n"
 "  -c                       Preprocess, compile, and assemble only.\n"
 "  -o <file>                Place the output into <file>.\n"
-"  -r, --run                Run the compiled executable after compilation.\n"
+"  -r, --run                Execute the compiled executable after compilation.\n"
 ;
 
 const std::string VERSIONTEXT =
@@ -50,6 +50,10 @@ int main(int argc, char* argv[]){
                 context.output_filename = arg;
                 context.expectOutputFile = false;
             }
+            else if(context.expectIncludePath){
+                context.includePaths.push_back(arg);
+                context.expectIncludePath = false;
+            }
 
             //if argument is --help or -h
             else if(arg == "-h" || arg == "--help"){
@@ -63,6 +67,14 @@ int main(int argc, char* argv[]){
             //time
             else if(arg == "-t" || arg == "--time"){
                 context.timeExecution = true;
+            }
+            //add include path
+            else if(arg == "-I"){
+                context.expectIncludePath = true;
+            }
+            //save intermediate files
+            else if(arg == "-K" || arg == "--save"){
+                context.deleteIntermediateFiles = false;
             }
             //preprocess only
             else if(arg == "-E"){
@@ -89,10 +101,6 @@ int main(int argc, char* argv[]){
             else if(arg == "-o"){
                 context.expectOutputFile = true;
             }
-            //save intermediate files
-            else if(arg == "-K" || arg == "--save"){
-                context.deleteIntermediateFiles = false;
-            }
             //run
             else if(arg == "-r" || arg == "--run"){
                 context.doExecute = true;
@@ -106,6 +114,16 @@ int main(int argc, char* argv[]){
                 }
             }
         }
+        //raise error if unhandled expects
+        if(context.expectOutputFile){
+            std::cout << "velc: Expected input file after -o\n";
+            exit(1);
+        }
+        if(context.expectIncludePath){
+            std::cout << "velc: Expected include file path after -I\n";
+            exit(1);
+        }
+
         //raise error if no input filename
         if(context.input_filename.empty()){
             std::cout << "velc: no input files\n";
@@ -123,11 +141,18 @@ int main(int argc, char* argv[]){
         context.input_filename_base = context.input_filename.substr(0, context.input_filename.length()-vel);
     }
 
+    auto start = std::chrono::high_resolution_clock::now();
     //--PREPROCESS--
     if(!context.doPreprocess){
         exit(0);
     }
     context.source = Preprocessor::Process(context.input_filename, context.includePaths);
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    if(context.timeExecution){
+        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start);
+        std::cout << "Preprocessor: " << (duration.count())/1000.0 << "μs\n";
+    }
 
     //--COMPILE--
     if(!context.doCompile){
@@ -145,28 +170,46 @@ int main(int argc, char* argv[]){
         exit(0);
     }
 
+    start = std::chrono::high_resolution_clock::now();
     //Lexer
     context.tokens = Lexer::tokenize(context.source);
 
+    stop = std::chrono::high_resolution_clock::now();
+    if(context.timeExecution){
+        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start);
+        std::cout << "Lexer: " << (duration.count())/1000.0 << "μs\n";
+    }
+
     #ifdef LEXER_DEBUG
-        std::cout << "Lexer:\n";
         std::cout << "Tokens: \n";
         for(Token t : context.tokens){
             std::cout << Lexer::KeywordToString(t.type) << '|' << t.text << '|' << t.value << ' ' << t.valuef << "       " << t.line << ' ' << t.col << '\n';
         }
     #endif
 
+    start = std::chrono::high_resolution_clock::now();
     //Parser
     context.AST = Parser::constructAST(context.tokens);
 
+    stop = std::chrono::high_resolution_clock::now();
+    if(context.timeExecution){
+        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start);
+        std::cout << "Parser: " << (duration.count())/1000.0 << "μs\n";
+    }
+
     #ifdef PARSER_DEBUG
-        std::cout << "Parser:\n";
         context.AST.print();
     #endif
-    
+
+    start = std::chrono::high_resolution_clock::now();  
     //Semantic Analyzer
     Analyzer::analyze(context.AST);
 
+    stop = std::chrono::high_resolution_clock::now();
+    if(context.timeExecution){
+        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start);
+        std::cout << "Semantic Analyzer: " << (duration.count())/1000.0 << "μs\n";
+    }
 
     /*
     asm{
