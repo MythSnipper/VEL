@@ -51,7 +51,7 @@ namespace Analyzer{
 
     void checkGlobalSymbols(Program& AST){
         AST.Table = std::make_unique<SymbolTable>(SymbolTable{});
-        
+
         for(std::unique_ptr<Declaration>& decl : AST.TopLevel){
             if(GlobalVariableDeclaration* globalVar = dynamic_cast<GlobalVariableDeclaration*>(decl.get())){
                 //handle global variable declarations
@@ -87,12 +87,75 @@ namespace Analyzer{
                     Symbol newSymbol = {SymbolType::Function, id, newType};
                     AST.Table->Symbols.insert({id, newSymbol});
                     std::cout << "FUNCTION: " << id << "\n";
+                    //do function scope
+                    checkFunctionSymbols(func, AST.Table.get());
                 }
+            }
+            else if(Assembly* assembly = dynamic_cast<Assembly*>(decl.get())){
+
             }
         }
     }
+    void checkFunctionSymbols(Function* func, SymbolTable* parentTable){
+        func->Table = std::make_unique<SymbolTable>(SymbolTable{});
+        func->Table->parent = parentTable;
 
+        for(std::pair<Type, std::unique_ptr<Identifier>>& param : func->Parameters){
+            Type type = param.first;
+            std::string id = param.second->Text;
 
+            if(func->Table->Symbols.find(id) != func->Table->Symbols.end()){
+                std::cout << "velc: Semantic Analyzer: Function parameter \"" << id << "\" redeclared in function " << func->Id->Text << " \n";
+                exit(1);
+            }
+            if(!type.isBuiltin){
+                std::cout << "velc: Semantic Analyzer: Non builtin function parameter type cannot be handled\n";
+                exit(1);
+            }
+            BuiltinType newType = {type.builtinType};
+            Symbol newSymbol;
+            newSymbol.Segregator = SymbolType::Parameter;
+            newSymbol.Id = id;
+            newSymbol.Type = newType;
+            func->Table->Symbols.insert({id, newSymbol});
+            std::cout << "PARAMETER: " << id << "\n";
+
+        }
+        //do statement
+        checkStatementSymbols(func->Body.get(), func->Table.get(), func);
+    }
+    void checkStatementSymbols(Statement* statement, SymbolTable* parentTable, Function* parentFunction){
+        if(Block* block = dynamic_cast<Block*>(statement)){
+            checkBlockSymbols(block, parentTable);
+        }
+        else if(VariableDeclaration* varDecl = dynamic_cast<VariableDeclaration*>(statement)){
+            checkVariableDeclarationSymbols(varDecl, parentTable);
+        }
+        else if(Return* ret = dynamic_cast<Return*>(statement)){
+            
+        }
+        else if(ExpressionStatement* exprStatement = dynamic_cast<ExpressionStatement*>(statement)){
+            checkExpression(exprStatement->Expr.get(), parentTable);
+        }
+        else if(If* ifStatement = dynamic_cast<If*>(statement)){
+            checkReturnSymbols
+        }
+        else if(While* whileStatement = dynamic_cast<While*>(statement)){
+
+        }
+        else if(For* forStatement = dynamic_cast<For*>(statement)){
+
+        }
+        else if(Assembly* assembly = dynamic_cast<Assembly*>(statement)){
+
+        }
+        else if(Empty* vel = dynamic_cast<Empty*>(statement)){
+
+        }
+
+        
+
+    }
 
 };
 
