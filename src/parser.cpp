@@ -67,6 +67,7 @@ void printIndent(int level){
 }
 std::string toString(BuiltinType t){
     switch(t){
+        case BuiltinType::BOOL: return "bool";
         case BuiltinType::INT8: return "int8";
         case BuiltinType::INT16: return "int16";
         case BuiltinType::INT32: return "int32";
@@ -208,6 +209,7 @@ namespace Parser{
 
     bool isTypename(const Token& token){
         switch(token.type){
+            case TokenType::BOOL_KEYWORD:
             case TokenType::INT8_KEYWORD:
             case TokenType::INT16_KEYWORD:
             case TokenType::INT32_KEYWORD:
@@ -241,6 +243,8 @@ namespace Parser{
 
     BuiltinType toBuiltinType(const TokenType& type){
         switch(type){
+            case TokenType::BOOL_KEYWORD:
+                return BuiltinType::BOOL;
             case TokenType::INT8_KEYWORD:
                 return BuiltinType::INT8;
             case TokenType::INT16_KEYWORD:
@@ -376,7 +380,7 @@ namespace Parser{
 
         if(isType(getToken(tokenList, index), TokenType::ASSIGN)){
             advance(tokenList, index, 1); //skip assignment operator
-            VariableDeclarationNode->Expr = parseExpression(tokenList, index); //parse expression till ;
+            VariableDeclarationNode->Expr = parseExpression(tokenList, index); //parse expression till stop token
             //skip stop token
             if(!isType(getToken(tokenList, index), stopType)){ //Check if the token is stop token
                 std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
@@ -386,8 +390,8 @@ namespace Parser{
             }
             advance(tokenList, index, 1); //skip stop token
         }
-        else if(isType(getToken(tokenList, index), TokenType::SEMICOLON)){
-            advance(tokenList, index, 1); //skip semicolon
+        else if(isType(getToken(tokenList, index), stopType)){
+            advance(tokenList, index, 1); //skip stop token
             VariableDeclarationNode->Expr = nullptr;
         }
         else{

@@ -1,4 +1,13 @@
 
-void _start(){
+int64 uwu = 300;
 
+
+void _start(){
+    int32 love = 999;
+    love;
+
+    vel;
+    int64 vel = 200;
+
+    return;
 }

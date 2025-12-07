@@ -15,6 +15,7 @@
 //-----------------------------------------------------------------------------------------------------------------------
 
 enum class BuiltinType{
+    BOOL,
     INT8,
     INT16,
     INT32,
@@ -32,6 +33,7 @@ enum class BuiltinType{
 
     VOID,
 };
+
 
 enum class LiteralType{
     INT,

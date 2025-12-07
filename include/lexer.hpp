@@ -11,9 +11,9 @@
 enum class TokenType{
     //special, but like more special than the special ones, like dio
     INVALID_TOKEN,
-    VEL_KEYWORD,
 
     //keywords
+    BOOL_KEYWORD,
     INT8_KEYWORD,
     INT16_KEYWORD,
     INT32_KEYWORD,
@@ -33,6 +33,9 @@ enum class TokenType{
     WHILE_KEYWORD,
     FOR_KEYWORD,
     RETURN_KEYWORD,
+
+    TRUE_KEYWORD,
+    FALSE_KEYWORD,
 
     //identifiers and literals
     IDENTIFIER,

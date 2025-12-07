@@ -1,9 +1,9 @@
 #include <velc.hpp>
 
 
-//#define ARGS_DEBUG
-//#define LEXER_DEBUG
-//#define PARSER_DEBUG
+#define ARGS_DEBUG
+#define LEXER_DEBUG
+#define PARSER_DEBUG
 
 const std::string HELPTEXT =
 "Usage: velc <file>.vel [options]\n"

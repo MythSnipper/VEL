@@ -4,7 +4,7 @@
 namespace Lexer{
 
     std::unordered_map<std::string, TokenType> map_kwid = {
-        {"vel", TokenType::VEL_KEYWORD},
+        {"bool", TokenType::BOOL_KEYWORD},
         {"int8", TokenType::INT8_KEYWORD},
         {"int16", TokenType::INT16_KEYWORD},
         {"int32", TokenType::INT32_KEYWORD},
@@ -22,10 +22,12 @@ namespace Lexer{
         {"else", TokenType::ELSE_KEYWORD},
         {"while", TokenType::WHILE_KEYWORD},
         {"for", TokenType::FOR_KEYWORD},
-        {"return", TokenType::RETURN_KEYWORD}
+        {"return", TokenType::RETURN_KEYWORD},
+        {"true", TokenType::TRUE_KEYWORD},
+        {"false", TokenType::FALSE_KEYWORD},
     };
     std::unordered_map<TokenType, std::string> map_idkw = {
-        {TokenType::VEL_KEYWORD, "VEL :3"},
+        {TokenType::BOOL_KEYWORD, "Keyword bool"},
         {TokenType::INT8_KEYWORD, "Keyword int8"},
         {TokenType::INT16_KEYWORD, "Keyword int16"},
         {TokenType::INT32_KEYWORD, "Keyword int32"},
@@ -44,6 +46,8 @@ namespace Lexer{
         {TokenType::WHILE_KEYWORD, "Keyword while"},
         {TokenType::FOR_KEYWORD, "Keyword for"},
         {TokenType::RETURN_KEYWORD, "Keyword return"},
+        {TokenType::TRUE_KEYWORD, "Keyword true"},
+        {TokenType::FALSE_KEYWORD, "Keyword false"},
         {TokenType::IDENTIFIER, "Identifier"},
         {TokenType::INT_LITERAL, "Literal Int"},
         {TokenType::FLOAT_LITERAL, "Literal Float"},
@@ -387,10 +391,6 @@ namespace Lexer{
 
 
 
-
-
-
-
             //invalid characters
             else{
                 std::cout << "Invalid character: \'" << current_char << "\'\n";
@@ -433,6 +433,9 @@ namespace Lexer{
             }
             else{
                 TokenType type = checkKeywordOrIdentifier(current_text);
+                if(type == TokenType::TRUE_KEYWORD || type == TokenType::FALSE_KEYWORD){ //TRUE OR FALSE FOR BOOL VALUE
+                    return {TokenType::INT_LITERAL, current_text, (int32_t)(type == TokenType::TRUE_KEYWORD), 0, startline, startcol};
+                }
                 return {type, current_text, 0, 0, startline, startcol};
             }
             advance(source, i, line, col);
