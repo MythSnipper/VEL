@@ -44,6 +44,10 @@ BuiltinType toBuiltinType(std::string type){
 */
 
 
+
+
+
+
 namespace Analyzer{
     void analyze(Program& AST){
         checkGlobalSymbols(AST);
@@ -51,6 +55,7 @@ namespace Analyzer{
 
     void checkGlobalSymbols(Program& AST){
         AST.Table = std::make_unique<SymbolTable>(SymbolTable{});
+        AST.Table->parent = nullptr;
 
         for(std::unique_ptr<Declaration>& decl : AST.TopLevel){
             if(GlobalVariableDeclaration* globalVar = dynamic_cast<GlobalVariableDeclaration*>(decl.get())){
@@ -122,40 +127,68 @@ namespace Analyzer{
 
         }
         //do statement
-        checkStatementSymbols(func->Body.get(), func->Table.get(), func);
+        checkStatement(func->Body.get(), func->Table.get(), func);
     }
-    void checkStatementSymbols(Statement* statement, SymbolTable* parentTable, Function* parentFunction){
+    void checkStatement(Statement* statement, SymbolTable* parentTable, Function* parentFunction){
         if(Block* block = dynamic_cast<Block*>(statement)){
-            checkBlockSymbols(block, parentTable);
+            checkBlock(block, parentTable, parentFunction);
         }
         else if(VariableDeclaration* varDecl = dynamic_cast<VariableDeclaration*>(statement)){
-            checkVariableDeclarationSymbols(varDecl, parentTable);
+            checkVariableDeclaration(varDecl, parentTable);
         }
         else if(Return* ret = dynamic_cast<Return*>(statement)){
-            
+            checkReturn(ret, parentTable, parentFunction);
         }
         else if(ExpressionStatement* exprStatement = dynamic_cast<ExpressionStatement*>(statement)){
             checkExpression(exprStatement->Expr.get(), parentTable);
         }
         else if(If* ifStatement = dynamic_cast<If*>(statement)){
-            checkReturnSymbols
+            checkIf(ifStatement, parentTable);
         }
         else if(While* whileStatement = dynamic_cast<While*>(statement)){
-
+            checkWhile(whileStatement, parentTable);
         }
         else if(For* forStatement = dynamic_cast<For*>(statement)){
-
+            checkFor(forStatement, parentTable);
         }
         else if(Assembly* assembly = dynamic_cast<Assembly*>(statement)){
-
+            checkAssembly(assembly, parentTable);
         }
         else if(Empty* vel = dynamic_cast<Empty*>(statement)){
 
         }
-
+    }
+    void checkBlock(Block* block, SymbolTable* parentTable, Function* parentFunction){
+        block->Table = std::make_unique<SymbolTable>(SymbolTable{});
+        block->Table->parent = parentTable;
         
+        for(std::unique_ptr<Statement>& statement : block->Statements){
+            checkStatement(statement.get(), parentTable, parentFunction);
+        }
+    }
+    void checkVariableDeclaration(VariableDeclaration* block, SymbolTable* parentTable){
 
     }
+    void checkReturn(Return* block, SymbolTable* parentTable, Function* parentFunction){
+
+    }
+    void checkIf(If* block, SymbolTable* parentTable){
+
+    }
+    void checkWhile(While* block, SymbolTable* parentTable){
+
+    }
+    void checkFor(For* block, SymbolTable* parentTable){
+
+    }
+    void checkAssembly(Assembly* block, SymbolTable* parentTable){
+
+    }
+    void checkExpression(Expression* expr, SymbolTable* parentTable){
+
+    }
+
+
 
 };
 
