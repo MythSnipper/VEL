@@ -143,6 +143,7 @@ struct Symbol{
     SymbolType Segregator;
     std::string Id;
     BuiltinType Type;
+    std::vector<BuiltinType> ParamTypes;
 
     //may be used for later
     ASTNode* decl = nullptr;

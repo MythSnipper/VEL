@@ -1,7 +1,7 @@
 #include <velc.hpp>
 
 
-#define ARGS_DEBUG
+//#define ARGS_DEBUG
 #define LEXER_DEBUG
 #define PARSER_DEBUG
 

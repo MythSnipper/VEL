@@ -1,47 +1,5 @@
 #include <analyzer.hpp>
 
-/*
-//Analyzer stuff
-enum class SymbolType{
-    Variable,
-    Function,
-    Parameter,
-};
-struct Symbol{
-    SymbolType Segregator;
-    std::string Id;
-    BuiltinType Type;
-
-    //may be used for later
-    ASTNode* decl = nullptr;
-};
-struct SymbolTable{
-    std::unordered_map<std::string, Symbol> Symbols;
-    SymbolTable* parent = nullptr; //links to outer symbol table
-};
-*/
-
-/*
-BuiltinType toBuiltinType(std::string type){
-
-        case "int8": return BuiltinType::INT8;
-        case "int16": return BuiltinType::INT16;
-        case "int32": return BuiltinType::INT32;
-        case "int64": return BuiltinType::INT64;
-        case "uint8": return BuiltinType::UINT8;
-        case "uint16": return BuiltinType::UINT16;
-        case "uint32": return BuiltinType::UINT32;
-        case "uint64": return BuiltinType::UINT64;
-        case "float32": return BuiltinType::FLOAT32;
-        case "float64": return BuiltinType::FLOAT64;
-        case "char": return BuiltinType::CHAR;
-        case "string": return BuiltinType::STRING;
-        case "void": return BuiltinType::VOID;
-
-
-    return BuiltinType::VOID;
-}
-*/
 
 
 
@@ -110,6 +68,15 @@ namespace Analyzer{
             }
             BuiltinType newType = {func->ReturnType.builtinType};
             Symbol newSymbol = {SymbolType::Function, id, newType};
+            //add function parameter types to the function definition
+            for(std::pair<Type, std::unique_ptr<Identifier>>& param : func->Parameters){
+                Type type = param.first;
+                if(!type.isBuiltin){
+                    std::cout << "velc: Semantic Analyzer: Non builtin function parameter type cannot be handled in checkFUnctionDeclaration\n";
+                    exit(1);
+                }
+                newSymbol.ParamTypes.push_back(type.builtinType);
+            }
             parentTable->Symbols.insert({id, newSymbol});
             std::cout << "FUNCTION: " << id << "\n";
         }
@@ -336,7 +303,7 @@ namespace Analyzer{
         //identifier
         if(Identifier* id = dynamic_cast<Identifier*>(expr)){
             Symbol* symbol = lookupSymbol(id->Text, parentTable);
-            if(!symbol){
+            if(!symbol || symbol->Segregator != SymbolType::Variable){
                 std::cout << "velc: Semantic Analyzer: Undefined variable " << id->Text << "\n";
                 exit(1);
             }
@@ -345,7 +312,24 @@ namespace Analyzer{
 
         //Call
         if(Call* call = dynamic_cast<Call*>(expr)){
+            Symbol* functionDefinition = lookupSymbol(call->Id->Text, parentTable);
+            if(!functionDefinition || functionDefinition->Segregator != SymbolType::Function){
+                std::cout << "velc: Semantic Analyzer: Undefined function " << call->Id->Text << "\n";
+                exit(1);
+            }
 
+            //check number of arguments of function definition and call
+            if(call->Arguments.size() != functionDefinition->ParamTypes.size()){
+                std::cout << "velc: Semantic Analyzer: Function call to " << call->Id->Text << " doesn't have the correct number of arguments\n";
+            }
+            for(uint32_t i=0;i<call->Arguments.size();i++){
+                BuiltinType argType = (checkExpression(call->Arguments[i].get(), parentTable)).builtinType;
+                BuiltinType paramType = functionDefinition->ParamTypes[i];
+
+            }
+
+
+            return {true, functionDefinition->Type, ""};
         }
 
         //postfix
