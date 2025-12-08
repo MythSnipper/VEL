@@ -345,26 +345,26 @@ namespace Analyzer{
 
         //Call
         if(Call* call = dynamic_cast<Call*>(expr)){
-            
+
         }
 
         //postfix
-        if(PostfixOp* literal = dynamic_cast<PostfixOp*>(expr)){
+        if(PostfixOp* op = dynamic_cast<PostfixOp*>(expr)){
 
         }
 
         //prefix
-        if(PrefixOp* literal = dynamic_cast<PrefixOp*>(expr)){
+        if(PrefixOp* op = dynamic_cast<PrefixOp*>(expr)){
 
         }
 
         //binary
-        if(BinaryOp* literal = dynamic_cast<BinaryOp*>(expr)){
+        if(BinaryOp* op = dynamic_cast<BinaryOp*>(expr)){
 
         }
 
         //assignment
-        if(AssignmentOp* literal = dynamic_cast<AssignmentOp*>(expr)){
+        if(AssignmentOp* op = dynamic_cast<AssignmentOp*>(expr)){
 
         }
 
