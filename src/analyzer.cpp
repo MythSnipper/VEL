@@ -348,25 +348,115 @@ namespace Analyzer{
 
         //postfix
         if(PostfixOp* op = dynamic_cast<PostfixOp*>(expr)){
-
+            Type exprType = checkExpression(op->Expr.get(), parentTable);
+            if(!exprType.isBuiltin){
+                std::cout << "velc: Semantic Analyzer: Cannot handle non builtin postfix operator operand type\n";
+                exit(1);
+            }
+            return checkPostfixOperatorType(op->Op, exprType);
         }
 
         //prefix
         if(PrefixOp* op = dynamic_cast<PrefixOp*>(expr)){
-
+            Type exprType = checkExpression(op->Expr.get(), parentTable);
+            if(!exprType.isBuiltin){
+                std::cout << "velc: Semantic Analyzer: Cannot handle non builtin prefix operator operand type\n";
+                exit(1);
+            }
+            return checkPrefixOperatorType(op->Op, exprType);
         }
 
         //binary
         if(BinaryOp* op = dynamic_cast<BinaryOp*>(expr)){
-
+            Type leftType = checkExpression(op->Left.get(), parentTable);
+            if(!leftType.isBuiltin){
+                std::cout << "velc: Semantic Analyzer: Cannot handle non builtin binary operator operand type\n";
+                exit(1);
+            }
+            Type rightType = checkExpression(op->Right.get(), parentTable);
+            if(!rightType.isBuiltin){
+                std::cout << "velc: Semantic Analyzer: Cannot handle non builtin binary operator operand type\n";
+                exit(1);
+            }
+            //incompatible types
+            if(!(checkTypeConversion(leftType, rightType) || checkTypeConversion(rightType, leftType))){
+                std::cerr << "velc: Semantic Analyzer: Cannot operate " << toString(op->Op) << " on types " << toString(leftType.builtinType) << " and " << toString(rightType.builtinType) << "\n";
+                exit(1);
+            }
+            if(leftType.builtinType != rightType.builtinType){
+                if(checkTypeConversion(rightType, leftType)){ //make right operand to left type
+                    std::unique_ptr<TypeCast> newCast = std::make_unique<TypeCast>(TypeCast{});
+                    newCast->Expr = std::move(op->Right);
+                    newCast->Target = leftType;
+                    op->Right = std::move(newCast);
+                    rightType = leftType;
+                }else{ //make left operand to right type
+                    std::unique_ptr<TypeCast> newCast = std::make_unique<TypeCast>(TypeCast{});
+                    newCast->Expr = std::move(op->Left);
+                    newCast->Target = rightType;
+                    op->Left = std::move(newCast);
+                    leftType = rightType;
+                }
+            }
+            return checkBinaryOperatorType(op->Op, leftType, rightType);
         }
 
         //assignment
         if(AssignmentOp* op = dynamic_cast<AssignmentOp*>(expr)){
+            //special check if operator is swap, need both to be Identifier
+            if(op->Op == BinaryOperator::SWAP){
+                if(Identifier* id = dynamic_cast<Identifier*>(op->Modifier.get())){
+                    std::cout << "velc: Semantic Analyzer: Can't do swap with non-identifier expression on the right side\n";
+                    exit(1);
+                }
+                std::cout << "velc: I love vel <3\n";
+                exit(1);
+            }
 
+            //check type of left
+            Type leftType = checkExpression(op->Target.get(), parentTable);
+            if(!leftType.isBuiltin){
+                std::cout << "velc: Semantic Analyzer: Cannot handle non builtin assignment operator operand type\n";
+                exit(1);
+            }
+            Type rightType = checkExpression(op->Modifier.get(), parentTable);
+            if(!rightType.isBuiltin){
+                std::cout << "velc: Semantic Analyzer: Cannot handle non builtin assignment operator operand type\n";
+                exit(1);
+            }
+            //incompatible types
+            if(leftType.builtinType != rightType.builtinType){
+                if(checkTypeConversion(rightType, leftType)){ //make right operand to left type
+                    std::unique_ptr<TypeCast> newCast = std::make_unique<TypeCast>(TypeCast{});
+                    newCast->Expr = std::move(op->Right);
+                    newCast->Target = leftType;
+                    op->Right = std::move(newCast);
+                    rightType = leftType;
+                }else{ //make left operand to right type
+                    std::unique_ptr<TypeCast> newCast = std::make_unique<TypeCast>(TypeCast{});
+                    newCast->Expr = std::move(op->Left);
+                    newCast->Target = rightType;
+                    op->Left = std::move(newCast);
+                    leftType = rightType;
+                }
+            }
+            return checkAssignmentOperatorType(op->Op, leftType, rightType);
         }
 
         return {true, BuiltinType::VOID, ""};
+    }
+
+    Type checkPostfixOperatorType(PostfixOperator op, const Type& exprType){
+        return {true, exprType.builtinType, ""};
+    }
+    Type checkPrefixOperatorType(PrefixOperator op, const Type& exprType){
+        return {true, exprType.builtinType, ""};
+    }
+    Type checkBinaryOperatorType(BinaryOperator op, const Type& type1, const Type& type2){
+        return {true, type1.builtinType, ""};
+    }
+    Type checkAssignmentOperatorType(BinaryOperator op, const Type& type1, const Type& type2){
+        return {true, type1.builtinType, ""};
     }
 
     Symbol* lookupSymbol(const std::string& id, SymbolTable* currTable){
@@ -409,7 +499,7 @@ namespace Analyzer{
     }
 
 
-    bool checkTypeConversion(Type startType, Type endType){
+    bool checkTypeConversion(const Type& startType, const Type& endType){
         //checks if startType can be converted to endType
         if(!(startType.isBuiltin && endType.isBuiltin)){
             std::cout << "velc: Semantic Analyzer: Non builtin variable type cannot be handled in checkTypeConversion\n";

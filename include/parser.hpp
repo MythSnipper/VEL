@@ -99,7 +99,7 @@ enum class BinaryOperator{
     RSHIFT_ASSIGN, // >>=
     NOT_ASSIGN,    // !~=
     SWAP,          // $$   I'll include it here as it is kind of an assignment operator, can be fixed in semantic analysis
-};
+}; 
 
 
 void printIndent(int level);

@@ -1,5 +1,24 @@
-
+#include:vel.lib
 
 void _start(){
-    
+    //67
+    /{
+        comment multiline
+    }/
+
+    %%mov rax, 1
+    %{
+        push rax
+        pop rax
+        push rbx
+        pop rbx
+
+    }%
+
+    int a = 6;
+    int b = 7;
+    a $$ b;
+
+
+
 }

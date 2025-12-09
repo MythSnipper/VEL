@@ -46,12 +46,18 @@ namespace Analyzer{
 
 
 
+    Type checkPostfixOperatorType(PostfixOperator op, const Type& exprType);
+    Type checkPrefixOperatorType(PrefixOperator op, const Type& exprType);
+    Type checkBinaryOperatorType(BinaryOperator op, const Type& type1, const Type& type2);
+    Type checkAssignmentOperatorType(BinaryOperator op, const Type& type1, const Type& type2);
+
+    
     Symbol* lookupSymbol(const std::string& id, SymbolTable* currTable);
 
     BuiltinType findBestLiteralType(int64_t vel);
     BuiltinType findBestLiteralType(double vel);
 
-    bool checkTypeConversion(Type startType, Type endType);
+    bool checkTypeConversion(const Type& startType, const Type& endType);
 
 
 
