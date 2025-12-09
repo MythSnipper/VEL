@@ -332,7 +332,10 @@ namespace Analyzer{
                 if(argType.builtinType != definitionArgType.builtinType){
                     if(checkTypeConversion(argType, definitionArgType)){ //if argument type can be converted
                         //insert cast
-                        call->Arguments[i] = std::make_unique<TypeCast>(TypeCast{std::move(call->Arguments[i]), definitionArgType});
+                        std::unique_ptr<TypeCast> newCast = std::make_unique<TypeCast>(TypeCast{});
+                        newCast->Expr = std::move(call->Arguments[i]);
+                        newCast->Target = definitionArgType;
+                        call->Arguments[i] = std::move(newCast);
                     }
                     else{
                         std::cout << "velc: Semantic Analyzer: Function call argument of type " << toString(argType.builtinType) << " can't be converted to type " << toString(definitionArgType.builtinType) << " in function definition\n";
