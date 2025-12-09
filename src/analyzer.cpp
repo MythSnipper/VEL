@@ -286,7 +286,6 @@ namespace Analyzer{
     Type checkExpression(Expression* expr, SymbolTable* parentTable){
         //nullptr
         if(expr == nullptr){
-            std::cout << "expr is nullptr\n";
             return {true, BuiltinType::VOID, ""};
         }
 
@@ -321,15 +320,27 @@ namespace Analyzer{
             //check number of arguments of function definition and call
             if(call->Arguments.size() != functionDefinition->ParamTypes.size()){
                 std::cout << "velc: Semantic Analyzer: Function call to " << call->Id->Text << " doesn't have the correct number of arguments\n";
+                exit(1);
             }
             for(uint32_t i=0;i<call->Arguments.size();i++){
-                BuiltinType argType = (checkExpression(call->Arguments[i].get(), parentTable)).builtinType;
-                BuiltinType paramType = functionDefinition->ParamTypes[i];
-
+                Type argType = checkExpression(call->Arguments[i].get(), parentTable);
+                if(!argType.isBuiltin){
+                    std::cout << "velc: Semantic Analyzer: Cannot handle non builtin function call argument type\n";
+                    exit(1);
+                }
+                Type definitionArgType = {true, functionDefinition->ParamTypes[i], ""};
+                if(argType.builtinType != definitionArgType.builtinType){
+                    if(checkTypeConversion(argType, definitionArgType)){ //if argument type can be converted
+                        //insert cast
+                        call->Arguments[i] = std::make_unique<TypeCast>(TypeCast{std::move(call->Arguments[i]), definitionArgType});
+                    }
+                    else{
+                        std::cout << "velc: Semantic Analyzer: Function call argument of type " << toString(argType.builtinType) << " can't be converted to type " << toString(definitionArgType.builtinType) << " in function definition\n";
+                        exit(1);
+                    }
+                }
             }
-
-
-            return {true, functionDefinition->Type, ""};
+            return {true, functionDefinition->Type, ""}; //return function return type
         }
 
         //postfix
@@ -352,9 +363,6 @@ namespace Analyzer{
 
         }
 
-        if(Literal* literal = dynamic_cast<Literal*>(expr)){
-
-        }
         return {true, BuiltinType::VOID, ""};
     }
 
@@ -367,10 +375,8 @@ namespace Analyzer{
             if(entry != currTable->Symbols.end()){
                 return &entry->second;
             }
-            std::cout << "not found: " << id << "\n";
             currTable = currTable->parent;
         }
-        std::cout << "not found(actually): " << id << "\n";
         return nullptr;
     }
 

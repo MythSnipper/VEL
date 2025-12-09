@@ -17,6 +17,12 @@
 struct TypeCast : Expression{
     std::unique_ptr<Expression> Expr;
     Type Target;
+
+    TypeCast(){};
+    TypeCast(std::unique_ptr<Expression> expr, Type target){
+        Expr = std::move(expr);
+        Target = target;
+    }
 };
 
 namespace Analyzer{
