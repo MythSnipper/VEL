@@ -2,6 +2,8 @@
 
 std::unordered_map<TokenType, int> binding_power_table = {
 
+    {TokenType::SWAP, 20},                 // $$
+
     {TokenType::MUL, 13},                 // *
     {TokenType::DIV, 13},                 // /
     {TokenType::MOD, 13},                 // %
@@ -27,7 +29,6 @@ std::unordered_map<TokenType, int> binding_power_table = {
     {TokenType::ANDAND, 5},               // &&
     {TokenType::OROR, 4},                 // ||
     {TokenType::XORXOR, 3},               // ^^
-    {TokenType::SWAP, 2},                 // $$
 
     {TokenType::ASSIGN, 1},               // =
     {TokenType::ADD_ASSIGN, 1},           // +=
@@ -708,111 +709,109 @@ namespace Parser{
             advance(tokenList, index, 1); //skip the operator
             std::unique_ptr<Expression> right = parseExpression(tokenList, index, newMinPrec);
 
-            //make left a binary node
-            std::unique_ptr<BinaryOp> binaryNode = std::make_unique<BinaryOp>(BinaryOp{});
-            binaryNode->Left = std::move(left);
-
+            BinaryOperator newBinaryOp;
+            bool isAssignment = false;
             //convert to binary operator
             switch(currentToken.type){
                 case TokenType::ADD:
-                binaryNode->Op = BinaryOperator::ADD;
+                newBinaryOp = BinaryOperator::ADD;
                 break;
                 case TokenType::SUB:
-                binaryNode->Op = BinaryOperator::SUB;
+                newBinaryOp = BinaryOperator::SUB;
                 break;
                 case TokenType::MUL:
-                binaryNode->Op = BinaryOperator::MUL;
+                newBinaryOp = BinaryOperator::MUL;
                 break;
                 case TokenType::DIV:
-                binaryNode->Op = BinaryOperator::DIV;
+                newBinaryOp = BinaryOperator::DIV;
                 break;
                 case TokenType::MOD:
-                binaryNode->Op = BinaryOperator::MOD;
+                newBinaryOp = BinaryOperator::MOD;
                 break;
 
                 case TokenType::EQ:
-                binaryNode->Op = BinaryOperator::EQ;
+                newBinaryOp = BinaryOperator::EQ;
                 break;
                 case TokenType::NEQ:
-                binaryNode->Op = BinaryOperator::NEQ;
+                newBinaryOp = BinaryOperator::NEQ;
                 break;
                 case TokenType::LT:
-                binaryNode->Op = BinaryOperator::LT;
+                newBinaryOp = BinaryOperator::LT;
                 break;
                 case TokenType::GT:
-                binaryNode->Op = BinaryOperator::GT;
+                newBinaryOp = BinaryOperator::GT;
                 break;
                 case TokenType::LTE:
-                binaryNode->Op = BinaryOperator::LTE;
+                newBinaryOp = BinaryOperator::LTE;
                 break;
                 case TokenType::GTE:
-                binaryNode->Op = BinaryOperator::GTE;
+                newBinaryOp = BinaryOperator::GTE;
                 break;
 
                 case TokenType::AND:
-                binaryNode->Op = BinaryOperator::BITWISE_AND;
+                newBinaryOp = BinaryOperator::BITWISE_AND;
                 break;
                 case TokenType::OR:
-                binaryNode->Op = BinaryOperator::BITWISE_OR;
+                newBinaryOp = BinaryOperator::BITWISE_OR;
                 break;
                 case TokenType::XOR:
-                binaryNode->Op = BinaryOperator::BITWISE_XOR;
+                newBinaryOp = BinaryOperator::BITWISE_XOR;
                 break;
                 case TokenType::LSHIFT:
-                binaryNode->Op = BinaryOperator::LSHIFT;
+                newBinaryOp = BinaryOperator::LSHIFT;
                 break;
                 case TokenType::RSHIFT:
-                binaryNode->Op = BinaryOperator::RSHIFT;
+                newBinaryOp = BinaryOperator::RSHIFT;
                 break;
 
                 case TokenType::ANDAND:
-                binaryNode->Op = BinaryOperator::LOGICAL_AND;
+                newBinaryOp = BinaryOperator::LOGICAL_AND;
                 break;
                 case TokenType::OROR:
-                binaryNode->Op = BinaryOperator::LOGICAL_OR;
+                newBinaryOp = BinaryOperator::LOGICAL_OR;
                 break;
                 case TokenType::XORXOR:
-                binaryNode->Op = BinaryOperator::LOGICAL_XOR;
+                newBinaryOp = BinaryOperator::LOGICAL_XOR;
                 break;
 
                 case TokenType::ASSIGN:
-                binaryNode->Op = BinaryOperator::ASSIGN;
+                newBinaryOp = BinaryOperator::ASSIGN;isAssignment = true;
                 break;
                 case TokenType::ADD_ASSIGN:
-                binaryNode->Op = BinaryOperator::ADD_ASSIGN;
+                newBinaryOp = BinaryOperator::ADD_ASSIGN;isAssignment = true;
                 break;
                 case TokenType::SUB_ASSIGN:
-                binaryNode->Op = BinaryOperator::SUB_ASSIGN;
+                newBinaryOp = BinaryOperator::SUB_ASSIGN;isAssignment = true;
                 break;
                 case TokenType::MUL_ASSIGN:
-                binaryNode->Op = BinaryOperator::MUL_ASSIGN;
+                newBinaryOp = BinaryOperator::MUL_ASSIGN;isAssignment = true;
                 break;
                 case TokenType::DIV_ASSIGN:
-                binaryNode->Op = BinaryOperator::DIV_ASSIGN;
+                newBinaryOp = BinaryOperator::DIV_ASSIGN;isAssignment = true;
                 break;
                 case TokenType::MOD_ASSIGN:
-                binaryNode->Op = BinaryOperator::MOD_ASSIGN;
+                newBinaryOp = BinaryOperator::MOD_ASSIGN;isAssignment = true;
                 break;
                 case TokenType::AND_ASSIGN:
-                binaryNode->Op = BinaryOperator::AND_ASSIGN;
+                newBinaryOp = BinaryOperator::AND_ASSIGN;isAssignment = true;
                 break;
                 case TokenType::OR_ASSIGN:
-                binaryNode->Op = BinaryOperator::OR_ASSIGN;
+                newBinaryOp = BinaryOperator::OR_ASSIGN;isAssignment = true;
                 break;
                 case TokenType::XOR_ASSIGN:
-                binaryNode->Op = BinaryOperator::XOR_ASSIGN;
+                newBinaryOp = BinaryOperator::XOR_ASSIGN;isAssignment = true;
                 break;
                 case TokenType::LSHIFT_ASSIGN:
-                binaryNode->Op = BinaryOperator::LSHIFT_ASSIGN;
+                newBinaryOp = BinaryOperator::LSHIFT_ASSIGN;isAssignment = true;
                 break;
                 case TokenType::RSHIFT_ASSIGN:
-                binaryNode->Op = BinaryOperator::RSHIFT_ASSIGN;
+                newBinaryOp = BinaryOperator::RSHIFT_ASSIGN;isAssignment = true;
                 break;
                 case TokenType::NOT_ASSIGN:
-                binaryNode->Op = BinaryOperator::NOT_ASSIGN;
+                newBinaryOp = BinaryOperator::NOT_ASSIGN;isAssignment = true;
                 break;
                 case TokenType::SWAP:
-                binaryNode->Op = BinaryOperator::SWAP;
+                newBinaryOp = BinaryOperator::SWAP;
                 break;
 
                 default:
@@ -820,11 +819,24 @@ namespace Parser{
                 std::cout << "velc: Parser: Invalid token type in parseExpression: Expected Binary Operator type when converting to a binary operator\n";
                 exit(1);
             };
+            if(!isAssignment){ //make left a binary node
+                std::unique_ptr<BinaryOp> binaryNode = std::make_unique<BinaryOp>(BinaryOp{});
+                binaryNode->Left = std::move(left);
 
+                binaryNode->Right = std::move(right);
 
-            binaryNode->Right = std::move(right);
-
-            left = std::move(binaryNode);
+                left = std::move(binaryNode);
+            }
+            else{ //assignment operator
+                if(Identifier* vel = dynamic_cast<Identifier*>(left.get())){ //make sure left op is identifier
+                    std::unique_ptr<AssignmentOp> assignmentNode = std::make_unique<AssignmentOp>(AssignmentOp{});
+                    assignmentNode
+                }
+                else{
+                    std::cout << "velc: Parser: Invalid left operand for assignment operator " << toString(newBinaryOp) << " : expected Identifier\n";
+                    exit(1);
+                }
+            }
         };
         return left;
     }
