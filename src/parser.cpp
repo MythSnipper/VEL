@@ -811,7 +811,7 @@ namespace Parser{
                 newBinaryOp = BinaryOperator::NOT_ASSIGN;isAssignment = true;
                 break;
                 case TokenType::SWAP:
-                newBinaryOp = BinaryOperator::SWAP;
+                newBinaryOp = BinaryOperator::SWAP;isAssignment = true;
                 break;
 
                 default:
@@ -821,21 +821,17 @@ namespace Parser{
             };
             if(!isAssignment){ //make left a binary node
                 std::unique_ptr<BinaryOp> binaryNode = std::make_unique<BinaryOp>(BinaryOp{});
+                binaryNode->Op = newBinaryOp;
                 binaryNode->Left = std::move(left);
-
                 binaryNode->Right = std::move(right);
-
                 left = std::move(binaryNode);
             }
             else{ //assignment operator
-                if(Identifier* vel = dynamic_cast<Identifier*>(left.get())){ //make sure left op is identifier
-                    std::unique_ptr<AssignmentOp> assignmentNode = std::make_unique<AssignmentOp>(AssignmentOp{});
-                    assignmentNode
-                }
-                else{
-                    std::cout << "velc: Parser: Invalid left operand for assignment operator " << toString(newBinaryOp) << " : expected Identifier\n";
-                    exit(1);
-                }
+                std::unique_ptr<AssignmentOp> assignmentNode = std::make_unique<AssignmentOp>(AssignmentOp{});
+                assignmentNode->Op = newBinaryOp;
+                assignmentNode->Left = std::move(left);
+                assignmentNode->Right = std::move(right);
+                left = std::move(assignmentNode);
             }
         };
         return left;

@@ -6,7 +6,7 @@
 
 
 
-namespace Analyzer{
+namespace SemanticAnalyzer{
     void analyze(Program& AST){
         checkProgram(AST);
     }
@@ -346,9 +346,14 @@ namespace Analyzer{
             return {true, functionDefinition->Type, ""}; //return function return type
         }
 
+
+
+
+
         //postfix
         if(PostfixOp* op = dynamic_cast<PostfixOp*>(expr)){
             Type exprType = checkExpression(op->Expr.get(), parentTable);
+            if(exprType.builtinType == BuiltinType::CHAR)exprType.builtinType = BuiltinType::INT8;
             if(!exprType.isBuiltin){
                 std::cout << "velc: Semantic Analyzer: Cannot handle non builtin postfix operator operand type\n";
                 exit(1);
@@ -359,6 +364,7 @@ namespace Analyzer{
         //prefix
         if(PrefixOp* op = dynamic_cast<PrefixOp*>(expr)){
             Type exprType = checkExpression(op->Expr.get(), parentTable);
+            if(exprType.builtinType == BuiltinType::CHAR)exprType.builtinType = BuiltinType::INT8;
             if(!exprType.isBuiltin){
                 std::cout << "velc: Semantic Analyzer: Cannot handle non builtin prefix operator operand type\n";
                 exit(1);
@@ -369,33 +375,38 @@ namespace Analyzer{
         //binary
         if(BinaryOp* op = dynamic_cast<BinaryOp*>(expr)){
             Type leftType = checkExpression(op->Left.get(), parentTable);
+            if(leftType.builtinType == BuiltinType::CHAR)leftType.builtinType = BuiltinType::INT8;
             if(!leftType.isBuiltin){
                 std::cout << "velc: Semantic Analyzer: Cannot handle non builtin binary operator operand type\n";
                 exit(1);
             }
             Type rightType = checkExpression(op->Right.get(), parentTable);
+            if(rightType.builtinType == BuiltinType::CHAR)rightType.builtinType = BuiltinType::INT8;
             if(!rightType.isBuiltin){
                 std::cout << "velc: Semantic Analyzer: Cannot handle non builtin binary operator operand type\n";
                 exit(1);
             }
-            //incompatible types
-            if(!(checkTypeConversion(leftType, rightType) || checkTypeConversion(rightType, leftType))){
-                std::cerr << "velc: Semantic Analyzer: Cannot operate " << toString(op->Op) << " on types " << toString(leftType.builtinType) << " and " << toString(rightType.builtinType) << "\n";
-                exit(1);
-            }
+            
             if(leftType.builtinType != rightType.builtinType){
-                if(checkTypeConversion(rightType, leftType)){ //make right operand to left type
+                //try right to left
+                if(checkTypeConversion(rightType, leftType)){
                     std::unique_ptr<TypeCast> newCast = std::make_unique<TypeCast>(TypeCast{});
                     newCast->Expr = std::move(op->Right);
                     newCast->Target = leftType;
                     op->Right = std::move(newCast);
                     rightType = leftType;
-                }else{ //make left operand to right type
+                }
+                //try left to right
+                else if(checkTypeConversion(leftType, rightType)){
                     std::unique_ptr<TypeCast> newCast = std::make_unique<TypeCast>(TypeCast{});
                     newCast->Expr = std::move(op->Left);
                     newCast->Target = rightType;
                     op->Left = std::move(newCast);
                     leftType = rightType;
+                }
+                else{
+                    std::cerr << "velc: Semantic Analyzer: Cannot operate " << toString(op->Op) << " on types " << toString(leftType.builtinType) << " and " << toString(rightType.builtinType) << "\n";
+                    exit(1);
                 }
             }
             return checkBinaryOperatorType(op->Op, leftType, rightType);
@@ -403,43 +414,58 @@ namespace Analyzer{
 
         //assignment
         if(AssignmentOp* op = dynamic_cast<AssignmentOp*>(expr)){
-            //special check if operator is swap, need both to be Identifier
-            if(op->Op == BinaryOperator::SWAP){
-                if(Identifier* id = dynamic_cast<Identifier*>(op->Modifier.get())){
-                    std::cout << "velc: Semantic Analyzer: Can't do swap with non-identifier expression on the right side\n";
-                    exit(1);
-                }
-                std::cout << "velc: I love vel <3\n";
+            //check left assignability, exit if no
+            bool leftAssignable = checkExpressionAssignable(op->Left.get());
+            if(!leftAssignable){
+                std::cout << "velc: Semantic Analyzer: can't do assignment operation " << toString(op->Op) << ": left expression is non-assignable\n";
                 exit(1);
             }
-
-            //check type of left
-            Type leftType = checkExpression(op->Target.get(), parentTable);
+            
+            //check types of both sides
+            Type leftType = checkExpression(op->Left.get(), parentTable);
+            if(leftType.builtinType == BuiltinType::CHAR)leftType.builtinType = BuiltinType::INT8;
             if(!leftType.isBuiltin){
                 std::cout << "velc: Semantic Analyzer: Cannot handle non builtin assignment operator operand type\n";
                 exit(1);
             }
-            Type rightType = checkExpression(op->Modifier.get(), parentTable);
+            Type rightType = checkExpression(op->Right.get(), parentTable);
+            if(rightType.builtinType == BuiltinType::CHAR)rightType.builtinType = BuiltinType::INT8;
             if(!rightType.isBuiltin){
                 std::cout << "velc: Semantic Analyzer: Cannot handle non builtin assignment operator operand type\n";
                 exit(1);
             }
-            //incompatible types
-            if(leftType.builtinType != rightType.builtinType){
-                if(checkTypeConversion(rightType, leftType)){ //make right operand to left type
-                    std::unique_ptr<TypeCast> newCast = std::make_unique<TypeCast>(TypeCast{});
-                    newCast->Expr = std::move(op->Right);
-                    newCast->Target = leftType;
-                    op->Right = std::move(newCast);
-                    rightType = leftType;
-                }else{ //make left operand to right type
-                    std::unique_ptr<TypeCast> newCast = std::make_unique<TypeCast>(TypeCast{});
-                    newCast->Expr = std::move(op->Left);
-                    newCast->Target = rightType;
-                    op->Left = std::move(newCast);
-                    leftType = rightType;
+
+            if(op->Op == BinaryOperator::SWAP){ //if swap
+                //check right side assignable
+                if(!checkExpressionAssignable(op->Right.get())){
+                    std::cout << "velc: Semantic Analyzer: Right expression is not assignable for swap operation\n";
+                    exit(1);
+                }
+                //must match type perfectly
+                if(leftType.builtinType != rightType.builtinType){
+                    if(!checkExpressionAssignable(op->Right.get())){
+                        std::cout << "velc: Semantic Analyzer: Swap operation must have operands of the same type, got types " << toString(leftType.builtinType) << " and " << toString(rightType.builtinType) <<"\n";
+                        exit(1);
+                    }
+                }
+
+            }
+            else{ //normal assignment operators
+                if(leftType.builtinType != rightType.builtinType){
+                    if(checkTypeConversion(rightType, leftType)){
+                        std::unique_ptr<TypeCast> newCast = std::make_unique<TypeCast>(TypeCast{});
+                        newCast->Expr = std::move(op->Right);
+                        newCast->Target = leftType;
+                        op->Right = std::move(newCast);
+                        rightType = leftType;
+                    }
+                    else{
+                        std::cout << "velc: Semantic Analyzer: Cannot assign type " << toString(rightType.builtinType) << " to type " << toString(leftType.builtinType) <<"\n";
+                        exit(1);
+                    }
                 }
             }
+
             return checkAssignmentOperatorType(op->Op, leftType, rightType);
         }
 
@@ -447,16 +473,170 @@ namespace Analyzer{
     }
 
     Type checkPostfixOperatorType(PostfixOperator op, const Type& exprType){
-        return {true, exprType.builtinType, ""};
+        if(!exprType.isBuiltin){
+            std::cout << "velc: Semantic Analyzer: Cannot check postfix operator type for non builtin type\n";
+            exit(1);
+        }
+
+        BuiltinType vel = exprType.builtinType;
+        switch(op){
+            case PostfixOperator::INC:
+            case PostfixOperator::DEC:
+            switch(vel){
+                case BuiltinType::INT8:
+                case BuiltinType::INT16:
+                case BuiltinType::INT32:
+                case BuiltinType::INT64:
+                case BuiltinType::UINT8:
+                case BuiltinType::UINT16:
+                case BuiltinType::UINT32:
+                case BuiltinType::UINT64:
+                case BuiltinType::CHAR:
+                    return exprType;
+                default:
+                    std::cout << "velc: Semantic Analyzer: Postfix operator " << toString(op) << " can't be applied to type " << toString(vel) << "\n";
+                    exit(1);
+            }
+            default:
+                std::cout << "velc: Semantic Analyzer: Unknown prefix operator\n";
+        }
     }
+
     Type checkPrefixOperatorType(PrefixOperator op, const Type& exprType){
-        return {true, exprType.builtinType, ""};
+        if(!exprType.isBuiltin){
+            std::cout << "velc: Semantic Analyzer: Cannot check prefix operator type for non builtin type\n";
+            exit(1);
+        }
+        
+        BuiltinType vel = exprType.builtinType;
+        switch(op){
+            case PrefixOperator::LOGICAL_NOT:
+                if(vel == BuiltinType::BOOL)return exprType;
+                std::cout << "velc: Semantic Analyzer: Postfix operator " << toString(op) << " can't be applied to type " << toString(vel) << "\n";
+                exit(1);
+                
+            case PrefixOperator::BITWISE_NOT:
+                switch(vel){
+                    case BuiltinType::INT8:
+                    case BuiltinType::INT16:
+                    case BuiltinType::INT32:
+                    case BuiltinType::INT64:
+                    case BuiltinType::UINT8:
+                    case BuiltinType::UINT16:
+                    case BuiltinType::UINT32:
+                    case BuiltinType::UINT64:
+                        return exprType;
+                    default:
+                        std::cout << "velc: Semantic Analyzer: Postfix operator " << toString(op) << " can't be applied to type " << toString(vel) << "\n";
+                        exit(1);
+                }
+                
+            case PrefixOperator::INC:
+            case PrefixOperator::DEC:
+                switch(vel){
+                    case BuiltinType::INT8:
+                    case BuiltinType::INT16:
+                    case BuiltinType::INT32:
+                    case BuiltinType::INT64:
+                    case BuiltinType::UINT8:
+                    case BuiltinType::UINT16:
+                    case BuiltinType::UINT32:
+                    case BuiltinType::UINT64:
+                    case BuiltinType::CHAR:
+                        return exprType;
+                    default:
+                        std::cout << "velc: Semantic Analyzer: Postfix operator " << toString(op) << " can't be applied to type " << toString(vel) << "\n";
+                        exit(1);
+                }
+
+            case PrefixOperator::ADD:
+            case PrefixOperator::NEG:
+                switch(vel){
+                    case BuiltinType::INT8:
+                    case BuiltinType::INT16:
+                    case BuiltinType::INT32:
+                    case BuiltinType::INT64:
+                    case BuiltinType::UINT8:
+                    case BuiltinType::UINT16:
+                    case BuiltinType::UINT32:
+                    case BuiltinType::UINT64:
+                    case BuiltinType::FLOAT32:
+                    case BuiltinType::FLOAT64:
+                    case BuiltinType::CHAR:
+                        return exprType;
+                    default:
+                        std::cout << "velc: Semantic Analyzer: Postfix operator " << toString(op) << " can't be applied to type " << toString(vel) << "\n";
+                        exit(1);
+                }
+
+            default:
+                std::cout << "velc: Semantic Analyzer: Unknown prefix operator\n";
+        }
     }
     Type checkBinaryOperatorType(BinaryOperator op, const Type& type1, const Type& type2){
+        if(!(type1.isBuiltin && type2.isBuiltin)){
+            std::cout << "velc: Semantic Analyzer: Cannot check Binary operator type for non builtin type(s)\n";
+            exit(1);
+        }
+        if(type1.builtinType != type2.builtinType){
+            std::cout << "velc: Semantic Analyzer: bug #1 in checkBinaryOperatorType\n";
+            exit(1);
+        }
+
+        BuiltinType vel = type1.builtinType;
+        switch(op){
+
+            //arithmetic: int float char, returns promoted type
+            case BinaryOperator::ADD:
+            case BinaryOperator::SUB:
+            case BinaryOperator::MUL:
+            case BinaryOperator::DIV:
+
+            //mod: int, returns promoted
+            case BinaryOperator::MOD:
+
+            //comps: int float char, bool if op == (EQ | NEQ) only, returns bool
+            case BinaryOperator::EQ:
+            case BinaryOperator::NEQ:
+            case BinaryOperator::LT:
+            case BinaryOperator::GT:
+            case BinaryOperator::LTE:
+            case BinaryOperator::GTE:
+
+            //bitwise: int char, returns promoted type
+            case BinaryOperator::BITWISE_AND:
+            case BinaryOperator::BITWISE_OR:
+            case BinaryOperator::BITWISE_XOR:
+            case BinaryOperator::LSHIFT:
+            case BinaryOperator::RSHIFT:
+
+            //logical: bool, returns bool
+            case BinaryOperator::LOGICAL_AND:
+            case BinaryOperator::LOGICAL_OR:
+            case BinaryOperator::LOGICAL_XOR:
+        }
+
+
+
+
+
         return {true, type1.builtinType, ""};
     }
     Type checkAssignmentOperatorType(BinaryOperator op, const Type& type1, const Type& type2){
+        if(!(type1.isBuiltin && type2.isBuiltin)){
+            std::cout << "velc: Semantic Analyzer: Cannot check Assignment operator type for non builtin type(s)\n";
+            exit(1);
+        }
+
         return {true, type1.builtinType, ""};
+    }
+
+    bool checkExpressionAssignable(Expression* expr){
+        //for now only check if it's an identifier or not
+        if(dynamic_cast<Identifier*>(expr) != nullptr){
+            return true;
+        }
+        return false;
     }
 
     Symbol* lookupSymbol(const std::string& id, SymbolTable* currTable){
@@ -473,21 +653,22 @@ namespace Analyzer{
         return nullptr;
     }
 
-    BuiltinType findBestLiteralType(int64_t vel){
-        if(vel >= 0){ //check positive limits
-            if(vel > INT32_MAX)return BuiltinType::INT64;
-            if(vel > INT16_MAX)return BuiltinType::INT32;
-            if(vel > INT8_MAX)return BuiltinType::INT16;
-            return BuiltinType::INT8;
+    BuiltinType findBestLiteralType(int64_t vel) {
+        if(vel >= 0){
+            if(vel <= UINT8_MAX)return BuiltinType::UINT8;
+            if(vel <= UINT16_MAX)return BuiltinType::UINT16;
+            if(vel <= UINT32_MAX)return BuiltinType::UINT32;
+            return BuiltinType::UINT64;
         }
-        if(vel < 0){ //check negative limits
-            if(vel < INT32_MIN)return BuiltinType::INT64;
-            if(vel < INT16_MIN)return BuiltinType::INT32;
-            if(vel < INT8_MIN)return BuiltinType::INT16;
-            return BuiltinType::INT8;
+        else{
+            if(vel >= INT8_MIN)return BuiltinType::INT8;
+            if(vel >= INT16_MIN)return BuiltinType::INT16;
+            if(vel >= INT32_MIN)return BuiltinType::INT32;
+            return BuiltinType::INT64;
         }
         return BuiltinType::INT64;
     }
+
     BuiltinType findBestLiteralType(double vel){
         if(std::abs(vel) <= std::numeric_limits<float>::max()){
             float f = static_cast<float>(vel);
@@ -499,7 +680,9 @@ namespace Analyzer{
     }
 
 
-    bool checkTypeConversion(const Type& startType, const Type& endType){
+    bool checkTypeConversion(const Type& startType, const Type& endType, uint32_t* dangerLevel){
+        uint32_t danger = 0;
+
         //checks if startType can be converted to endType
         if(!(startType.isBuiltin && endType.isBuiltin)){
             std::cout << "velc: Semantic Analyzer: Non builtin variable type cannot be handled in checkTypeConversion\n";
@@ -512,16 +695,18 @@ namespace Analyzer{
 
         //same type allowed
         if(s == e){
+            if(dangerLevel != nullptr)*dangerLevel = danger;
             return true;
         }
         
         auto isInteger = [](BT t){
-            return t == BT::INT8 || t == BT::INT16 || t == BT::INT32 || t == BT::INT64 ||
+            return t == BT::CHAR ||
+                   t == BT::INT8 || t == BT::INT16 || t == BT::INT32 || t == BT::INT64 ||
                    t == BT::UINT8 || t == BT::UINT16 || t == BT::UINT32 || t == BT::UINT64;
         };
     
         auto isSignedInteger = [](BT t){
-            return t == BT::INT8 || t == BT::INT16 || t == BT::INT32 || t == BT::INT64;
+            return t == BT::CHAR || t == BT::INT8 || t == BT::INT16 || t == BT::INT32 || t == BT::INT64;
         };
     
         auto isUnsignedInteger = [](BT t){
@@ -532,7 +717,7 @@ namespace Analyzer{
             return t == BT::FLOAT32 || t == BT::FLOAT64;
         };
 
-        //void to void allowed, trust
+        //conversions to or from void
         if(s == BT::VOID || e == BT::VOID){
             std::cout << "velc: Semantic Analyzer: Warning: converting to/from void is more illegal than niko's hairline\n";
             return false;
@@ -540,12 +725,13 @@ namespace Analyzer{
 
         // integer to integer
         if(isInteger(s) && isInteger(e)){
-            // narrowing
             if((isSignedInteger(s) && isUnsignedInteger(e))){
                 std::cout << "velc: Semantic Analyzer: Warning: conversion from signed to unsigned\n";
+                danger++;
             }
             if((isUnsignedInteger(s) && isSignedInteger(e))){
                 std::cout << "velc: Semantic Analyzer: Warning: conversion from unsigned to signed\n";
+                danger++;
             }
 
             // smaller to larger is fine
@@ -575,19 +761,24 @@ namespace Analyzer{
             }
             if(sizeS > sizeE){
                 std::cout << "velc: Semantic Analyzer: Warning: narrowing integer conversion from " << sizeS << " bits to " << sizeE << " bits\n";
+                danger++;
             }
-
+            if(dangerLevel != nullptr)*dangerLevel = danger;
             return true;
         }
 
         //integer to float
         if(isInteger(s) && isFloat(e)){
             std::cout << "velc: Semantic Analyzer: Warning: converting integer to float may lose precision, like niko's sight without glasses\n";
+            danger++;
+            if(dangerLevel != nullptr)*dangerLevel = danger;
             return true;
         }
         //float to integer
         if(isFloat(s) && isInteger(e)){
             std::cout << "velc: Semantic Analyzer: Warning: converting float to integer will truncate\n";
+            danger++;
+            if(dangerLevel != nullptr)*dangerLevel = danger;
             return true;
         }
         //float to float
@@ -596,33 +787,52 @@ namespace Analyzer{
             int sizeE = (e==BT::FLOAT32?32:64);
             if(sizeS > sizeE){
                 std::cout << "velc: Semantic Analyzer: Warning: narrowing float conversion from " << sizeS << " bits to " << sizeE << " bits\n";
+                danger++;
             }
+            if(dangerLevel != nullptr)*dangerLevel = danger;
             return true;
         }
         //boolean to something
-        if(s == BT::BOOL && (isInteger(e) || isFloat(e))){
-            std::cout << "velc: Semantic Analyzer: Warning: converting bool to numeric type\n";
+        if(s == BT::BOOL && (isInteger(e) || isFloat(s))){
+            std::cout << "velc: Semantic Analyzer: Warning: converting bool to numeric or char type\n";
+            danger++;
+            if(dangerLevel != nullptr)*dangerLevel = danger;
             return true;
         }
         //something to boolean
         if((isInteger(s) || isFloat(s)) && e == BT::BOOL){
-            std::cout << "velc: Semantic Analyzer: Warning: converting numeric type to bool\n";
+            std::cout << "velc: Semantic Analyzer: Warning: converting numeric or char type to bool\n";
+            danger++;
+            if(dangerLevel != nullptr)*dangerLevel = danger;
             return true;
         }
 
         // char conversions
         if(s == BT::CHAR && (isInteger(e) || isFloat(e))){
             std::cout << "velc: Semantic Analyzer: Warning: converting char to numeric type\n";
+            danger++;
+            if(dangerLevel != nullptr)*dangerLevel = danger;
             return true;
         }
         if((isInteger(s) || isFloat(s)) && e == BT::CHAR){
             std::cout << "velc: Semantic Analyzer: Warning: converting numeric type to char\n";
+            danger++;
+            if(dangerLevel != nullptr)*dangerLevel = danger;
             return true;
         }
 
-        if(s == BT::STRING && e != BT::BOOL){
-            std::cout << "velc: Semantic Analyzer: Warning: conversion from string to non-boolean is more illegal than dio's hairline\n";
-            return false;
+        if(s == BT::STRING){ //string converted to bool allowed
+            if(e == BT::BOOL){
+                return true;
+            }
+            else{
+                std::cout << "velc: Semantic Analyzer: Converting string to type " << toString(e) << " is not allowed\n";
+                exit(1);
+            }
+        }
+        if(e == BT::STRING){
+            std::cout << "velc: Semantic Analyzer: Converting string to type " << toString(e) << " is not allowed\n";
+            exit(1);
         }
 
         std::cout << "velc: Semantic Analyzer: Warning: conversion from " << toString(s) << " to " << toString(e) << " is uncaught, disallowing by default.\n";

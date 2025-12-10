@@ -25,7 +25,7 @@ struct TypeCast : Expression{
     }
 };
 
-namespace Analyzer{
+namespace SemanticAnalyzer{
     void analyze(Program& AST);
     void checkProgram(Program& AST);
 
@@ -51,13 +51,14 @@ namespace Analyzer{
     Type checkBinaryOperatorType(BinaryOperator op, const Type& type1, const Type& type2);
     Type checkAssignmentOperatorType(BinaryOperator op, const Type& type1, const Type& type2);
 
-    
+    bool checkExpressionAssignable(Expression* expr);
+
     Symbol* lookupSymbol(const std::string& id, SymbolTable* currTable);
 
     BuiltinType findBestLiteralType(int64_t vel);
     BuiltinType findBestLiteralType(double vel);
 
-    bool checkTypeConversion(const Type& startType, const Type& endType);
+    bool checkTypeConversion(const Type& startType, const Type& endType, uint32_t* dangerLevel = nullptr);
 
 
 

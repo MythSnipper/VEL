@@ -98,7 +98,7 @@ enum class BinaryOperator{
     LSHIFT_ASSIGN, // <<=
     RSHIFT_ASSIGN, // >>=
     NOT_ASSIGN,    // !~=
-    SWAP,          // $$   I'll include it here as it is kind of an assignment operator, can be fixed in semantic analysis
+    SWAP,          // $$
 }; 
 
 
@@ -258,7 +258,7 @@ struct BinaryOp : Expression{
 };
 
 struct AssignmentOp : Expression{
-    std::unique_ptr<Identifier> Left;
+    std::unique_ptr<Expression> Left;
     BinaryOperator Op;
     std::unique_ptr<Expression> Right;
 

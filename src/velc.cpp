@@ -203,7 +203,7 @@ int main(int argc, char* argv[]){
 
     start = std::chrono::high_resolution_clock::now();  
     //Semantic Analyzer
-    Analyzer::analyze(context.AST);
+    SemanticAnalyzer::analyze(context.AST);
 
     stop = std::chrono::high_resolution_clock::now();
     if(context.timeExecution){

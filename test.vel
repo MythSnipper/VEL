@@ -17,6 +17,7 @@ void _start(){
 
     int32 a = 6;
     int32 b = 7;
+    a $$ b;
     a += b;
 
 }
