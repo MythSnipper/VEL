@@ -583,7 +583,27 @@ namespace SemanticAnalyzer{
             exit(1);
         }
 
-        BuiltinType vel = type1.builtinType;
+        using BT = BuiltinType;
+
+        BT leftType = type1.builtinType;
+        BT rightType = type2.builtinType;
+
+        auto isInteger = [](BT t){
+            return t == BT::INT8 || t == BT::INT16 || t == BT::INT32 || t == BT::INT64 ||
+                   t == BT::UINT8 || t == BT::UINT16 || t == BT::UINT32 || t == BT::UINT64;
+        };
+    
+        auto isFloat = [](BT t){
+            return t == BT::FLOAT32 || t == BT::FLOAT64;
+        };
+    
+        auto isNumeric = [&](BT t){
+            return isInteger(t) || isFloat(t) || t == BT::CHAR;
+        };
+
+
+
+
         switch(op){
 
             //arithmetic: int float char, returns promoted type
@@ -591,9 +611,16 @@ namespace SemanticAnalyzer{
             case BinaryOperator::SUB:
             case BinaryOperator::MUL:
             case BinaryOperator::DIV:
+                if(isNumeric(leftType) && isNumeric(rightType)){
+                    return numericPromotion(leftType, rightType);
+                }
+                std::cout << "velc: Semantic Analyzer: Arithmetic operator " << toString(op) << " can't be applied to types " << toString(leftType) << " and " << toString(rightType) << "\n";
+                exit(1);
 
             //mod: int, returns promoted
             case BinaryOperator::MOD:
+            //TODOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+                
 
             //comps: int float char, bool if op == (EQ | NEQ) only, returns bool
             case BinaryOperator::EQ:
