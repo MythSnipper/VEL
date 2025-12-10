@@ -1,4 +1,4 @@
-#include:vel.lib
+#include:stdlib.vlib
 
 void _start(){
     //67
@@ -15,10 +15,8 @@ void _start(){
 
     }%
 
-    int a = 6;
-    int b = 7;
-    a $$ b;
-
-
+    int32 a = 6;
+    int32 b = 7;
+    a += b;
 
 }

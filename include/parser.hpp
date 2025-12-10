@@ -258,15 +258,15 @@ struct BinaryOp : Expression{
 };
 
 struct AssignmentOp : Expression{
-    std::unique_ptr<Identifier> Target;
+    std::unique_ptr<Identifier> Left;
     BinaryOperator Op;
-    std::unique_ptr<Expression> Modifier;
+    std::unique_ptr<Expression> Right;
 
     void print(int level = 0) const override{
         printIndent(level);
         std::cout << "AssignmentOp: " << toString(Op) << "\n";
-        Target->print(level + 1);
-        Modifier->print(level + 1);
+        Left->print(level + 1);
+        Right->print(level + 1);
     }
 };
 //-----------------------------------------------------------------------------------------------------------------------

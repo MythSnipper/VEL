@@ -126,7 +126,7 @@ int main(int argc, char* argv[]){
 
         //raise error if no input filename
         if(context.input_filename.empty()){
-            std::cout << "velc: no input files\n";
+            std::cout << "velc: no input file\n";
             exit(1);
         }
         //cannot execute if the processes are not finished
