@@ -619,8 +619,11 @@ namespace SemanticAnalyzer{
 
             //mod: int, returns promoted
             case BinaryOperator::MOD:
-            //TODOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-                
+                if(isInteger(leftType) && isInteger(rightType)){
+                    return numericPromotion(leftType, rightType);
+                }
+                std::cout << "velc: Semantic Analyzer: Arithmetic operator \% needs integer types, not types " << toString(leftType) << " and " << toString(rightType) << "\n";
+                exit(1);        
 
             //comps: int float char, bool if op == (EQ | NEQ) only, returns bool
             case BinaryOperator::EQ:
@@ -629,31 +632,59 @@ namespace SemanticAnalyzer{
             case BinaryOperator::GT:
             case BinaryOperator::LTE:
             case BinaryOperator::GTE:
+                if(op == BinaryOperator::EQ || op == BinaryOperator::NEQ){
+                    if(leftType == BT::BOOL && rightType == BT::BOOL){
+                        return {true, BT::BOOL, ""};
+                    }
+                }
+                if(isNumeric(leftType) && isNumeric(rightType)){
+                    return {true, BT::BOOL, ""};
+                }
+                std::cout << "velc: Semantic Analyzer: Comparison operator " << toString(op) << " can't be applied to types " << toString(leftType) << " and " << toString(rightType) << "\n";
+                exit(1);
 
             //bitwise: int char, returns promoted type
             case BinaryOperator::BITWISE_AND:
             case BinaryOperator::BITWISE_OR:
             case BinaryOperator::BITWISE_XOR:
+                if(isInteger(leftType) && isInteger(rightType)){
+                    return numericPromotion(leftType, rightType);
+                }
+                std::cout << "velc: Semantic Analyzer: Bitwise operator " << toString(op) << " can't be applied to types " << toString(leftType) << " and " << toString(rightType) << ", requires integer operands\n";
+                exit(1);
+
             case BinaryOperator::LSHIFT:
             case BinaryOperator::RSHIFT:
+                if(isInteger(leftType) && isInteger(rightType)){
+                    return leftType;
+                }
+                std::cout << "velc: Semantic Analyzer: Shift operator " << toString(op) << " can't be applied to types " << toString(leftType) << " and " << toString(rightType) << ", requires integer operands\n";
+                exit(1);
 
             //logical: bool, returns bool
             case BinaryOperator::LOGICAL_AND:
             case BinaryOperator::LOGICAL_OR:
             case BinaryOperator::LOGICAL_XOR:
+                if(leftType == BT::BOOL && rightType == BT::BOOL){
+                    return {true, BT::BOOL, ""};
+                }
+                std::cout << "velc: Semantic Analyzer: Logical operator " << toString(op) << " can't be applied to types " << toString(leftType) << " and " << toString(rightType) << ", requires bool\n";
+                exit(1);
         }
-
-
-
-
-
-        return {true, type1.builtinType, ""};
+        std::cout << "velc: Semantic Analyzer: Unhandled operator " << toString(op) << " on types " << toString(leftType) << " and " << toString(rightType) << "\n";
+        exit(1);
     }
     Type checkAssignmentOperatorType(BinaryOperator op, const Type& type1, const Type& type2){
         if(!(type1.isBuiltin && type2.isBuiltin)){
             std::cout << "velc: Semantic Analyzer: Cannot check Assignment operator type for non builtin type(s)\n";
             exit(1);
         }
+        BuiltinType leftType = type1.builtinType;
+        BuiltinType rightType = type2.builtinType;
+
+        //TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+
+
 
         return {true, type1.builtinType, ""};
     }
