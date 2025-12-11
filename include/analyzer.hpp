@@ -51,6 +51,7 @@ namespace SemanticAnalyzer{
     Type checkBinaryOperatorType(BinaryOperator op, const Type& type1, const Type& type2);
     Type checkAssignmentOperatorType(BinaryOperator op, const Type& type1, const Type& type2);
 
+    BuiltinType numericPromotion(const BuiltinType t1, const BuiltinType t2);
     bool checkExpressionAssignable(Expression* expr);
 
     Symbol* lookupSymbol(const std::string& id, SymbolTable* currTable);

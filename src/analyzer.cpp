@@ -501,7 +501,6 @@ namespace SemanticAnalyzer{
                 std::cout << "velc: Semantic Analyzer: Unknown prefix operator\n";
         }
     }
-
     Type checkPrefixOperatorType(PrefixOperator op, const Type& exprType){
         if(!exprType.isBuiltin){
             std::cout << "velc: Semantic Analyzer: Cannot check prefix operator type for non builtin type\n";
@@ -601,9 +600,6 @@ namespace SemanticAnalyzer{
             return isInteger(t) || isFloat(t) || t == BT::CHAR;
         };
 
-
-
-
         switch(op){
 
             //arithmetic: int float char, returns promoted type
@@ -612,7 +608,7 @@ namespace SemanticAnalyzer{
             case BinaryOperator::MUL:
             case BinaryOperator::DIV:
                 if(isNumeric(leftType) && isNumeric(rightType)){
-                    return numericPromotion(leftType, rightType);
+                    return {true, numericPromotion(leftType, rightType), ""};
                 }
                 std::cout << "velc: Semantic Analyzer: Arithmetic operator " << toString(op) << " can't be applied to types " << toString(leftType) << " and " << toString(rightType) << "\n";
                 exit(1);
@@ -620,7 +616,7 @@ namespace SemanticAnalyzer{
             //mod: int, returns promoted
             case BinaryOperator::MOD:
                 if(isInteger(leftType) && isInteger(rightType)){
-                    return numericPromotion(leftType, rightType);
+                    return {true, numericPromotion(leftType, rightType), ""};
                 }
                 std::cout << "velc: Semantic Analyzer: Arithmetic operator \% needs integer types, not types " << toString(leftType) << " and " << toString(rightType) << "\n";
                 exit(1);        
@@ -648,7 +644,7 @@ namespace SemanticAnalyzer{
             case BinaryOperator::BITWISE_OR:
             case BinaryOperator::BITWISE_XOR:
                 if(isInteger(leftType) && isInteger(rightType)){
-                    return numericPromotion(leftType, rightType);
+                    return {true, numericPromotion(leftType, rightType), ""};
                 }
                 std::cout << "velc: Semantic Analyzer: Bitwise operator " << toString(op) << " can't be applied to types " << toString(leftType) << " and " << toString(rightType) << ", requires integer operands\n";
                 exit(1);
@@ -656,7 +652,7 @@ namespace SemanticAnalyzer{
             case BinaryOperator::LSHIFT:
             case BinaryOperator::RSHIFT:
                 if(isInteger(leftType) && isInteger(rightType)){
-                    return leftType;
+                    return {true, leftType, ""};
                 }
                 std::cout << "velc: Semantic Analyzer: Shift operator " << toString(op) << " can't be applied to types " << toString(leftType) << " and " << toString(rightType) << ", requires integer operands\n";
                 exit(1);
@@ -679,14 +675,26 @@ namespace SemanticAnalyzer{
             std::cout << "velc: Semantic Analyzer: Cannot check Assignment operator type for non builtin type(s)\n";
             exit(1);
         }
-        BuiltinType leftType = type1.builtinType;
-        BuiltinType rightType = type2.builtinType;
+        if(type1.builtinType != type2.builtinType){
+            std::cout << "velc: Semantic Analyzer: bug #1 in checkAssignmentOperatorType\n";
+            exit(1);
+        }
 
+        using BT = BuiltinType;
+
+        BT leftType = type1.builtinType;
+        BT rightType = type2.builtinType;
+
+        
         //TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
 
 
 
         return {true, type1.builtinType, ""};
+    }
+
+    BuiltinType numericPromotion(const BuiltinType t1, const BuiltinType t2){
+
     }
 
     bool checkExpressionAssignable(Expression* expr){
