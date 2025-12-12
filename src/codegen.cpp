@@ -3,14 +3,31 @@
 
 namespace CodeGenerator{
     void generate(Program& AST, std::ostream& out){
-//vel
-        
+        CodeGeneratorContext ctx{
+            &out,
+        };
+        emitProgram(AST, ctx);
+
     }
-    void emitProgram(Program* program, CodeGeneratorContext& ctx){
+    void emitProgram(Program& AST, CodeGeneratorContext& ctx){
+        //loop through declarations
+        for(std::unique_ptr<Declaration>& decl : AST.TopLevel){
+            if(GlobalVariableDeclaration* globalVar = dynamic_cast<GlobalVariableDeclaration*>(decl.get())){
+                emitGlobalVariableDeclaration(globalVar, ctx);
+            }
+            else if(Function* func = dynamic_cast<Function*>(decl.get())){
+                emitFunction(func, ctx);
+            }
+            else if(Assembly* assembly = dynamic_cast<Assembly*>(decl.get())){
+                emitAssembly(assembly, ctx);
+            }
+        }
 
     }
     void emitGlobalVariableDeclaration(GlobalVariableDeclaration* varDecl, CodeGeneratorContext& ctx){
+        switch(varDecl->){
 
+        }
     }
     void emitFunction(Function* func, CodeGeneratorContext& ctx){
 

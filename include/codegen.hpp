@@ -22,7 +22,7 @@ struct CodeGeneratorContext{
 
 namespace CodeGenerator{
     void generate(Program& AST, std::ostream& out);
-    void emitProgram(Program* program, CodeGeneratorContext& ctx);
+    void emitProgram(Program& AST, CodeGeneratorContext& ctx);
     void emitGlobalVariableDeclaration(GlobalVariableDeclaration* varDecl, CodeGeneratorContext& ctx);
     void emitFunction(Function* func, CodeGeneratorContext& ctx);
     void emitStatement(Statement* statement, CodeGeneratorContext& ctx);

@@ -45,10 +45,22 @@ namespace SemanticAnalyzer{
                 std::cout << "velc: Semantic Analyzer: Non builtin variable type cannot be handled in checkGlobalVariableDeclaration\n";
                 exit(1);
             }
-            BuiltinType newType = {decl->Typename.builtinType};
-            Symbol newSymbol = {SymbolType::Variable, id, newType};
-            parentTable->Symbols.insert({id, newSymbol});
-            std::cout << "GLOBAL VAR: " << id << "\n";
+            if(Literal* vel = dynamic_cast<Literal*>(decl->Expr.get())){
+
+                
+
+
+
+                BuiltinType newType = {decl->Typename.builtinType};
+                Symbol newSymbol = {SymbolType::Variable, id, newType};
+                parentTable->Symbols.insert({id, newSymbol});
+                std::cout << "GLOBAL VAR: " << id << "\n";
+
+            }
+            else{
+                std::cout << "velc: Semantic Analyzer: Global variable \"" << id << "\" does not have a constant value\n";
+                exit(1);
+            }
         }
     }
     void checkFunctionDeclaration(Function* func, SymbolTable* parentTable){

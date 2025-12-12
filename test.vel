@@ -1,5 +1,9 @@
 #include:stdlib.vlib
 
+int32 hello = 30;
+
+
+
 void _start(){
     //67
     /{
