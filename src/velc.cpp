@@ -24,7 +24,11 @@ const std::string VERSIONTEXT =
 "velc (VEL Compiler) 1.0.0 INDEV\n"
 ;
 
+
+
+
 int main(int argc, char* argv[]){
+
 
     CompilerOptions context{};
     { //Parse argv
@@ -326,5 +330,6 @@ inline bool endsWith(const std::string& string, const std::string& extension){
     }
     return string.compare(string.size()-extension.size(), extension.size(), extension) == 0;
 }
+
 
 
