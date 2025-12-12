@@ -99,7 +99,7 @@ enum class BinaryOperator{
     RSHIFT_ASSIGN, // >>=
     NOT_ASSIGN,    // !~=
     SWAP,          // $$
-}; 
+};
 
 
 void printIndent(int level);

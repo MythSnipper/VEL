@@ -685,10 +685,22 @@ namespace SemanticAnalyzer{
         BT leftType = type1.builtinType;
         BT rightType = type2.builtinType;
 
-        
-        //TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+        switch(op){
+            case BinaryOperator::ASSIGN:
+            case BinaryOperator::ADD_ASSIGN:
+            case BinaryOperator::SUB_ASSIGN:
+            case BinaryOperator::MUL_ASSIGN:
+            case BinaryOperator::DIV_ASSIGN:
+            case BinaryOperator::MOD_ASSIGN:
+            case BinaryOperator::AND_ASSIGN:
+            case BinaryOperator::OR_ASSIGN:
+            case BinaryOperator::XOR_ASSIGN:
+            case BinaryOperator::LSHIFT_ASSIGN:
+            case BinaryOperator::RSHIFT_ASSIGN:
+            case BinaryOperator::NOT_ASSIGN:
+            case BinaryOperator::SWAP:
 
-
+        }
 
         return {true, type1.builtinType, ""};
     }
