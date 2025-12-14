@@ -156,6 +156,7 @@ int main(int argc, char* argv[]){
     if(context.timeExecution){
         auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start);
         std::cout << "Preprocessor: " << (duration.count())/1000.0 << "μs\n";
+        context.totalTime += duration.count();
     }
 
     //--COMPILE--
@@ -182,6 +183,7 @@ int main(int argc, char* argv[]){
     if(context.timeExecution){
         auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start);
         std::cout << "Lexer: " << (duration.count())/1000.0 << "μs\n";
+        context.totalTime += duration.count();
     }
 
     #ifdef LEXER_DEBUG
@@ -199,6 +201,7 @@ int main(int argc, char* argv[]){
     if(context.timeExecution){
         auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start);
         std::cout << "Parser: " << (duration.count())/1000.0 << "μs\n";
+        context.totalTime += duration.count();
     }
 
     #ifdef PARSER_DEBUG
@@ -213,6 +216,19 @@ int main(int argc, char* argv[]){
     if(context.timeExecution){
         auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start);
         std::cout << "Semantic Analyzer: " << (duration.count())/1000.0 << "μs\n";
+        context.totalTime += duration.count();
+    }
+
+    //Code generator
+    start = std::chrono::high_resolution_clock::now();
+    std::ostringstream source;
+    CodeGenerator::generate(context.AST, source);
+    context.sourceAssembly = source.str();
+    stop = std::chrono::high_resolution_clock::now();
+    if(context.timeExecution){
+        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start);
+        std::cout << "Code Generator: " << (duration.count())/1000.0 << "μs\n";
+        context.totalTime += duration.count();
     }
 
     /*

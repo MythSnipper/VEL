@@ -54,6 +54,7 @@ namespace Lexer{
         {TokenType::CHAR_LITERAL, "Literal Char"},
         {TokenType::STRING_LITERAL, "Literal String"},
         {TokenType::ASSEMBLY, "Assembly :3"},
+        {TokenType::COMMENT, "Comment :3"},
         {TokenType::SEMICOLON, "Semicolon"}, 
         {TokenType::COMMA, "Comma"},
         {TokenType::LPAREN, "LParen"},
@@ -114,13 +115,13 @@ namespace Lexer{
             
             //comments
             if(current_char == '/' && next_char == '/'){ //single line comment
-                scanComment_Single(source, i, line, col);
+                current_token = scanComment_Single(source, i, line, col);
+                token_list.push_back(current_token);
             }
             else if(current_char == '/' && next_char == '{'){ //multi line comment
-                scanComment_Multi(source, i, line, col);
+                current_token = scanComment_Multi(source, i, line, col);
+                token_list.push_back(current_token);
             }
-
-
 
             //assembly
             else if(current_char == '%' && next_char == '%'){ //single line assembly
@@ -136,8 +137,6 @@ namespace Lexer{
             else if(current_char == ' ' || current_char == '\n' || current_char == '\t'){
                 advance(source, i, line, col);
             }
-
-
 
             //scan for keyword or identifier
             else if(isalpha(current_char) || current_char == '_'){
@@ -163,7 +162,7 @@ namespace Lexer{
             
 
             //grammar, punctuation stuff
-            else if(current_char == ';'){
+            else if(current_char == '~'){
                 current_token = (Token){TokenType::SEMICOLON, ";", 0, 0, line, col};
                 token_list.push_back(current_token);
                 advance(source, i, line, col);
@@ -680,7 +679,7 @@ namespace Lexer{
         return {TokenType::CHAR_LITERAL, text, value, 0, startLine, startCol};
     }
     
-
+    /* this is used back in the days when comments are discarded
 
     void scanComment_Single(const std::string& source, uint32_t& i, int& line, int& col){
         advance(source, i, line, col);
@@ -708,6 +707,47 @@ namespace Lexer{
             advance(source, i, line, col);
         }
     }
+
+    */
+
+    Token scanComment_Single(const std::string& source, uint32_t& i, int& line, int& col){
+        advance(source, i, line, col);
+        advance(source, i, line, col);
+        std::string current_text;
+        for(;i<source.length()-1;){
+            if(source[i] != '\n' && source[i+1] != '\n'){
+                current_text += source[i];
+                current_text += source[i+1];
+                advance(source, i, line, col);
+                advance(source, i, line, col);
+            }
+            else if(source[i] != '\n'){
+                current_text += source[i];
+                advance(source, i, line, col);
+            }
+            else{
+                advance(source, i, line, col);
+                return {TokenType::COMMENT, current_text + "\n", 0, 0, line, col};
+            }
+        }
+        return {TokenType::COMMENT, current_text + "\n", 0, 0, line, col};
+    }
+    Token scanComment_Multi(const std::string& source, uint32_t& i, int& line, int& col){
+        advance(source, i, line, col);
+        advance(source, i, line, col);
+        std::string current_text;
+        for(;i<source.length()-1;){
+            if(source[i] == '}' && source[i+1] == '/'){
+                advance(source, i, line, col);
+                advance(source, i, line, col);
+                return {TokenType::COMMENT, current_text + "\n", 0, 0, line, col};
+            }
+            current_text += source[i];
+            advance(source, i, line, col);
+        }
+        return {TokenType::COMMENT, current_text + "\n", 0, 0, line, col};
+    }
+
     Token scanAssembly_Single(const std::string& source, uint32_t& i, int& line, int& col){
         advance(source, i, line, col);
         advance(source, i, line, col);

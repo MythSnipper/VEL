@@ -24,6 +24,9 @@ namespace SemanticAnalyzer{
             else if(Assembly* assembly = dynamic_cast<Assembly*>(decl.get())){
                 
             }
+            else if(Comment* comment = dynamic_cast<Comment*>(decl.get())){
+
+            }
         }
         //then do functions
         for(std::unique_ptr<Declaration>& decl : AST.TopLevel){
@@ -45,11 +48,14 @@ namespace SemanticAnalyzer{
                 std::cout << "velc: Semantic Analyzer: Non builtin variable type cannot be handled in checkGlobalVariableDeclaration\n";
                 exit(1);
             }
+            if(!decl->Expr){
+                BuiltinType newType = {decl->Typename.builtinType};
+                Symbol newSymbol = {SymbolType::Variable, id, newType};
+                parentTable->Symbols.insert({id, newSymbol});
+                std::cout << "GLOBAL VAR: " << id << "\n";
+                return;
+            }
             if(Literal* vel = dynamic_cast<Literal*>(decl->Expr.get())){
-
-                
-
-
 
                 BuiltinType newType = {decl->Typename.builtinType};
                 Symbol newSymbol = {SymbolType::Variable, id, newType};
@@ -143,6 +149,9 @@ namespace SemanticAnalyzer{
         }
         else if(Assembly* assembly = dynamic_cast<Assembly*>(statement)){
             checkAssembly(assembly, parentTable);
+        }
+        else if(Comment* comment = dynamic_cast<Comment*>(statement)){
+
         }
         else if(Empty* vel = dynamic_cast<Empty*>(statement)){
             

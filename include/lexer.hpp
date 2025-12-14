@@ -44,6 +44,7 @@ enum class TokenType{
     CHAR_LITERAL,
     STRING_LITERAL,
     ASSEMBLY,
+    COMMENT,
 
     //punctuation
     SEMICOLON,  // ;
@@ -119,8 +120,8 @@ namespace Lexer{
     Token scanNumLiteral(const std::string& source, uint32_t& i, int& line, int& col);
     Token scanStringLiteral(const std::string& source, uint32_t& i, int& line, int& col);
     Token scanCharLiteral(const std::string& source, uint32_t& i, int& line, int& col);
-    void scanComment_Single(const std::string& source, uint32_t& i, int& line, int& col);
-    void scanComment_Multi(const std::string& source, uint32_t& i, int& line, int& col);
+    Token scanComment_Single(const std::string& source, uint32_t& i, int& line, int& col);
+    Token scanComment_Multi(const std::string& source, uint32_t& i, int& line, int& col);
     Token scanAssembly_Single(const std::string& source, uint32_t& i, int& line, int& col);
     Token scanAssembly_Multi(const std::string& source, uint32_t& i, int& line, int& col);
 }

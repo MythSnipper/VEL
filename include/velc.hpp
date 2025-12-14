@@ -12,7 +12,7 @@
 #include <lexer.hpp>
 #include <parser.hpp>
 #include <analyzer.hpp>
-
+#include <codegen.hpp>
 
 
 struct CompilerOptions{
@@ -29,7 +29,7 @@ struct CompilerOptions{
     Program AST;
 
     //for timing
-    
+    int64_t totalTime; //nanoseconds
 
     //options
     bool timeExecution = false;

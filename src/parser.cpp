@@ -171,6 +171,11 @@ namespace Parser{
                 std::unique_ptr<Assembly> AssemblyNode = parseAssembly(tokenList, index);
                 program.TopLevel.push_back(std::move(AssemblyNode));
             }
+            //Comment
+            else if(isType(currentToken, TokenType::COMMENT)){
+                std::unique_ptr<Comment> commentNode = parseComment(tokenList, index);
+                program.TopLevel.push_back(std::move(commentNode));
+            }
             else if(isTypename(currentToken) && isType(nextToken, TokenType::IDENTIFIER)){
                 if(isType(nextnextToken, TokenType::LPAREN)){
                     //Function
@@ -283,6 +288,14 @@ namespace Parser{
 
         advance(tokenList, index, 1); //skip assembly
         return AssemblyNode;
+    }
+
+    std::unique_ptr<Comment> parseComment(const std::vector<Token>& tokenList, int& index){
+        std::unique_ptr<Comment> CommentNode = std::make_unique<Comment>(Comment{});
+        CommentNode->Text = getToken(tokenList, index).text;
+
+        advance(tokenList, index, 1); //skip comment
+        return CommentNode;
     }
 
     std::unique_ptr<Function> parseFunction(const std::vector<Token>& tokenList, int& index){

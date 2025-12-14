@@ -1,27 +1,61 @@
 #include:stdlib.vlib
 
-int32 hello = 30;
+string hello = "uwILOVEVEL u"~
+int8 hell = 3330~
+
+
+float64 resu~
+
+//comment test! i love vel!
+%{text
+
+    mov rax, 1          ; sys_write
+    mov rdi, 1          ; stdout
+    mov rsi, meow       ; message address
+    mov rdx, meowll     ; message length
+    syscall
+
+    mov rax, 60         ; sys_exit
+    xor rdi, rdi        ; exit code 0
+    syscall
+
+
+}%
+%{data
+    meow db "I love vel", 10
+    meowll equ $ - meow
+}%
 
 
 
-void _start(){
-    //67
-    /{
-        comment multiline
-    }/
 
-    %%mov rax, 1
-    %{
-        push rax
-        pop rax
-        push rbx
-        pop rbx
 
-    }%
 
-    int32 a = 6;
-    int32 b = 7;
-    a $$ b;
-    a += b;
 
-}
+
+
+
+
+
+/{
+
+    bandit1 password: ZjLjTmM6FvvyRnrb2rfNWOZOTa6ip5If
+    bandit2 password: 263JGJPfgU6LtdEvgfWU1XP5yac29mFx
+    bandit3 password: MNk8KNH3Usiio41PRUEoDFPqfxLPlSmx
+    bandit4 password: 2WmrDFRmJIq3IPxneAaMGhap0pFhF3NJ
+    bandit5 password: 4oQYVPkxZOOEOO5pTW81FB8j8lxXGUQw
+    bandit6 password: HWasnPhtq9AVKe0dmk45nxy20cvUa6EG
+    bandit7 password: morbNTDkSW6jIlUc0ymOdMaLnOlFVAaj
+    bandit8 password: dfwvzFQi4mU0wfNbFOe9RoWskMLg7eEc
+    
+
+
+
+
+
+
+
+
+
+
+}/

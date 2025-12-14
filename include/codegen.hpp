@@ -4,6 +4,7 @@
 #include <cstdint>
 
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -14,9 +15,12 @@
 #include <analyzer.hpp>
 
 
-
 struct CodeGeneratorContext{
     std::ostream* out;
+
+    std::string section_data = "";
+    std::string section_bss = "";
+    std::string section_text = "";
 
 };
 
@@ -33,9 +37,14 @@ namespace CodeGenerator{
     void emitWhile(While* whileStatement, CodeGeneratorContext& ctx);
     void emitFor(For* forStatement, CodeGeneratorContext& ctx);
     void emitAssembly(Assembly* inlineAsm, CodeGeneratorContext& ctx);
+    void emitComment(Comment* vel, CodeGeneratorContext& ctx);
     void emitExpression(Expression* expr, CodeGeneratorContext& ctx);
     void emitTypeCast(TypeCast* cast, CodeGeneratorContext& ctx);
 
+
+    inline bool startsWith(const std::string& string, const std::string& extension);
+
+    
 }
 
 

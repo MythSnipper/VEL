@@ -515,6 +515,19 @@ struct Assembly : Statement, Declaration{
     }
 };
 
+struct Comment : Statement, Declaration{
+    std::string Text;
+    Comment(){};
+    Comment(const std::string& text){
+        Text = text;
+    }
+
+    void print(int level = 0) const override{
+        printIndent(level);
+        std::cout << "Comment: " << Text << "\n";
+    }
+};
+
 struct Empty : Statement{
     // :3
 
@@ -536,6 +549,7 @@ namespace Parser{
 
     std::unique_ptr<Function> parseFunction(const std::vector<Token>& tokenList, int& index);
     std::unique_ptr<Assembly> parseAssembly(const std::vector<Token>& tokenList, int& index);
+    std::unique_ptr<Comment> parseComment(const std::vector<Token>& tokenList, int& index);
     std::unique_ptr<GlobalVariableDeclaration> parseGlobalVariableDeclaration(const std::vector<Token>& tokenList, int& index);
     std::unique_ptr<VariableDeclaration> parseVariableDeclaration(const std::vector<Token>& tokenList, int& index, const TokenType& stopType = TokenType::SEMICOLON);
     std::unique_ptr<Block> parseBlock(const std::vector<Token>& tokenList, int& index);
