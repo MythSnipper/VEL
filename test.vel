@@ -1,6 +1,6 @@
 #include:stdlib.vlib
 
-string hello = "uwILOVEVEL u"~
+string hello = "\nuwILOVEVEL\n u"~
 int8 hell = 3330~
 
 

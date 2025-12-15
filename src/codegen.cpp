@@ -138,6 +138,12 @@ namespace CodeGenerator{
                             if(s >= 32){
                                 if(stringMode == false){
                                     stringMode = true;
+                                    if(!beginning){
+                                        ctx.section_data += ", ";
+                                    }
+                                    else{
+                                        beginning = false;
+                                    }
                                     ctx.section_data += "\"";
                                 }
                                 ctx.section_data += s;
@@ -147,7 +153,12 @@ namespace CodeGenerator{
                                     stringMode = false;
                                     ctx.section_data += "\"";
                                 }
-                                ctx.section_data += ", ";
+                                if(!beginning){
+                                    ctx.section_data += ", ";
+                                }
+                                else{
+                                    beginning = false;
+                                }
                                 ctx.section_data += std::to_string((uint8_t)s);
                             }
                         }
