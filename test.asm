@@ -1,6 +1,6 @@
 ;VELC CODEGEN START
 section .data
-hello db "uwILOVEVEL", 10, " u", 0
+hello db 10, "uwu", 10, 0
 hell db 3330
 ;Assembly start
 

@@ -57,7 +57,6 @@ namespace CodeGenerator{
     }
     void emitGlobalVariableDeclaration(GlobalVariableDeclaration* varDecl, CodeGeneratorContext& ctx){
         if(!varDecl->Expr){
-            std::cout << "NOEXPR\n";
             ctx.section_bss += varDecl->Id->Text;
             ctx.section_bss += " ";
             //get bss reserve for a datatype
@@ -103,7 +102,6 @@ namespace CodeGenerator{
         }
         else{
             if(Literal* vel = dynamic_cast<Literal*>(varDecl->Expr.get())){
-                std::cout << "EXPR!\n";
                 ctx.section_data += varDecl->Id->Text;
                 ctx.section_data += " ";
 
@@ -127,12 +125,7 @@ namespace CodeGenerator{
                             ctx.section_data += "\"\"";
                             break;
                         }
-                        if(vel->StringValue.at(0) >= 32){
-                            stringMode = true;
-                            ctx.section_data += "\"";
-                            ctx.section_data += vel->StringValue.at(0);
-                        }
-                        for(int i=1;i<vel->StringValue.length();i++){
+                        for(int i=0;i<vel->StringValue.length();i++){
                             char s = vel->StringValue.at(i);
 
                             if(s >= 32){
@@ -207,7 +200,7 @@ namespace CodeGenerator{
 
     }
     void emitBlock(Block* block, CodeGeneratorContext& ctx){
-
+        
     }
     void emitVariableDeclaration(VariableDeclaration* varDecl, CodeGeneratorContext& ctx){
 

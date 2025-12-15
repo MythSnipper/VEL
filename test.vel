@@ -1,10 +1,6 @@
 #include:stdlib.vlib
 
-string hello = "\nuwILOVEVEL\n u"~
-int8 hell = 3330~
 
-
-float64 resu~
 
 //comment test! i love vel!
 %{text

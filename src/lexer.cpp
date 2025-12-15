@@ -618,8 +618,9 @@ namespace Lexer{
                     case 'r': currentText += '\r'; break;
                     case 'f': currentText += '\f'; break;
                     case 'b': currentText += '\b'; break;
+                    case '0': currentText += '\0'; break;
                     case '\\': currentText += '\\'; break;
-                    case '"': currentText += '"'; break;
+                    case '\"': currentText += '\"'; break;
                     case '\'': currentText += '\''; break;
                     default: currentText += nextChar; break;
                 }
