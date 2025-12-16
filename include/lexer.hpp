@@ -27,6 +27,7 @@ enum class TokenType{
     FLOAT64_KEYWORD,
     STRING_KEYWORD,
     VOID_KEYWORD,
+    POINTER_KEYWORD,
 
     IF_KEYWORD,
     ELSE_KEYWORD,

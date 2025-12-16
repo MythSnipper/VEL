@@ -25,6 +25,7 @@ namespace Lexer{
         {"return", TokenType::RETURN_KEYWORD},
         {"true", TokenType::TRUE_KEYWORD},
         {"false", TokenType::FALSE_KEYWORD},
+        {"ptr", TokenType::POINTER_KEYWORD},
     };
     std::unordered_map<TokenType, std::string> map_idkw = {
         {TokenType::BOOL_KEYWORD, "Keyword bool"},
@@ -41,6 +42,7 @@ namespace Lexer{
         {TokenType::FLOAT64_KEYWORD, "Keyword float64"},
         {TokenType::STRING_KEYWORD, "Keyword string"},
         {TokenType::VOID_KEYWORD, "Keyword void"},
+        {TokenType::POINTER_KEYWORD, "Keyword ptr"},
         {TokenType::IF_KEYWORD, "Keyword if"},
         {TokenType::ELSE_KEYWORD, "Keyword else"},
         {TokenType::WHILE_KEYWORD, "Keyword while"},
@@ -143,8 +145,6 @@ namespace Lexer{
                 current_token = scanKeywordOrIdentifier(source, i, line, col);
                 token_list.push_back(current_token);
             }
-
-
 
             //scan for literals
             else if(isdigit(current_char)){
@@ -457,7 +457,6 @@ namespace Lexer{
         }
         return (map_idkw.find(type) != map_idkw.end()) ? map_idkw[type] : "NUHUHTYPE";
     }
-    
     
     Token scanNumLiteral(const std::string& source, uint32_t& i, int& line, int& col){
         std::string current_text;

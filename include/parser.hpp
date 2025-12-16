@@ -31,6 +31,7 @@ enum class BuiltinType{
     CHAR,
     STRING,
 
+    POINTER,
     VOID,
 };
 
@@ -119,6 +120,9 @@ struct Type{
     //the exact type must be used for semantic analysis and codegen
     BuiltinType builtinType; // valid if isBuiltin
     std::string name;        // user-defined type
+
+    bool isPointer = false;
+    std::unique_ptr<Type> pointerType = nullptr;
 };
 
 //-----------------------------------------------------------------------------------------------------------------------
@@ -547,6 +551,9 @@ namespace Parser{
     bool isTypename(const Token& token);
     BuiltinType toBuiltinType(const TokenType& type);
 
+    Type getType(const std::vector<Token>& tokenList, int& index);
+
+    
     std::unique_ptr<Function> parseFunction(const std::vector<Token>& tokenList, int& index);
     std::unique_ptr<Assembly> parseAssembly(const std::vector<Token>& tokenList, int& index);
     std::unique_ptr<Comment> parseComment(const std::vector<Token>& tokenList, int& index);

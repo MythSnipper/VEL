@@ -17,7 +17,8 @@ _start:
 ;comment test! i love vel!
 ;Assembly start
 
-    enter 0, 0
+    push rbp
+    mov rbp, rsp
 
     mov rax, 1          ; sys_write
     mov rdi, 1          ; stdout
@@ -25,7 +26,8 @@ _start:
     mov rdx, meowll     ; message length
     syscall
 
-    leave
+    mov rsp, rbp
+    pop rbp
 
     mov rax, 60         ; sys_exit
     xor rdi, rdi        ; exit code 0

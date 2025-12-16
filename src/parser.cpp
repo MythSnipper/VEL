@@ -59,7 +59,6 @@ std::unordered_map<TokenType, int> binding_power_table_prefix = {
     {TokenType::SUB, 15},                 // -
 };
 
-
 //stuff for debug print in header file
 void printIndent(int level){
     for(int i=0;i<level;i++){
@@ -82,6 +81,7 @@ std::string toString(BuiltinType t){
         case BuiltinType::CHAR: return "char";
         case BuiltinType::STRING: return "string";
         case BuiltinType::VOID: return "void";
+        case BuiltinType::POINTER: return "ptr";
     }
     return "nein";
 }
@@ -153,7 +153,6 @@ std::string toString(BinaryOperator t){
     }
     return "nein";
 }
-
 
 namespace Parser{
     Program constructAST(const std::vector<Token>& tokenList){
@@ -352,13 +351,44 @@ namespace Parser{
         return FunctionNode;
     }
 
+    Type getType(const std::vector<Token>& tokenList, int& index){
+        Type varType = {true, toBuiltinType(getToken(tokenList, index).type), ""}; //variable type
+        advance(tokenList, index, 1); //skip typename
+
+        //if not pointer return
+        if(varType.builtinType != BuiltinType::POINTER){
+            return varType;
+        }
+
+        //if < then get type again
+        if(isType(getToken(tokenList, index), TokenType::LT)){
+            advance(tokenList, index, 1); //skip <
+            //get type
+            Type newType = getType(tokenList, index);
+            varType.isPointer = true;
+            varType.pointerType = std::make_unique<Type>(newType);
+
+            //expect >
+            if(!isType(getToken(tokenList, index), TokenType::GT)){ //Check if the token is LPAREN
+                std::cout << "Info:\nCurrent token: " << getToken(tokenList, index).text << "Next token: " << getToken(tokenList, index, 1).text << "\n";
+                std::cout << "velc: Parser: Invalid token in getType: Expected closing > when parsing pointer\n";
+                exit(1);
+            }
+            advance(tokenList, index, 1); //skip >
+        }
+        else{ //if not < then assign default pointer type
+
+        }
+
+    }
+
     std::unique_ptr<GlobalVariableDeclaration> parseGlobalVariableDeclaration(const std::vector<Token>& tokenList, int& index){
         std::unique_ptr<GlobalVariableDeclaration> GlobalVariableDeclarationNode = std::make_unique<GlobalVariableDeclaration>(GlobalVariableDeclaration{});
-        GlobalVariableDeclarationNode->Typename = Type{true, toBuiltinType(getToken(tokenList, index).type), ""}; //First token is the return type
+        GlobalVariableDeclarationNode->Typename = getType(tokenList, index);
         
-        GlobalVariableDeclarationNode->Id = std::make_unique<Identifier>(Identifier{getToken(tokenList, index, 1).text}); //Second token is the function identifier
+        GlobalVariableDeclarationNode->Id = std::make_unique<Identifier>(Identifier{getToken(tokenList, index, 1).text}); //Second token is the identifier
         
-        advance(tokenList, index, 2); //skip typename, identifier
+        advance(tokenList, index, 1); //skip identifier
 
         if(isType(getToken(tokenList, index), TokenType::ASSIGN)){
             advance(tokenList, index, 1); //skip assignment operator

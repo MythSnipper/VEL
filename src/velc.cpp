@@ -24,9 +24,6 @@ const std::string VERSIONTEXT =
 "velc (VEL Compiler) 1.0.0 INDEV\n"
 ;
 
-
-
-
 int main(int argc, char* argv[]){
 
 

@@ -1,5 +1,7 @@
 #include:stdlib.vlib
 
+ptr test1~
+ptr<int32> test2~
 
 
 //comment test! i love vel!
