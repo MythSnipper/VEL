@@ -1,7 +1,5 @@
 ;VELC CODEGEN START
 section .data
-hello db 10, "uwu", 10, 0
-hell db 3330
 ;Assembly start
 
     meow db "I love vel", 10
@@ -10,7 +8,6 @@ hell db 3330
 ;Assembly end
 
 section .bss
-resu resq 1
 
 section .text
     global _start
@@ -20,6 +17,7 @@ _start:
 ;comment test! i love vel!
 ;Assembly start
 
+    enter 0, 0
 
     mov rax, 1          ; sys_write
     mov rdi, 1          ; stdout
@@ -27,10 +25,11 @@ _start:
     mov rdx, meowll     ; message length
     syscall
 
+    leave
+
     mov rax, 60         ; sys_exit
     xor rdi, rdi        ; exit code 0
     syscall
-
 
 
 ;Assembly end
